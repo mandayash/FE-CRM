@@ -1,12 +1,56 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import Image from "next/image";
+import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { authService } from "@/services/auth_service";
+import { LoginRequest } from "@/types/auth";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+
+  // Form states
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
+
+    try {
+      const loginData: LoginRequest = {
+        email,
+        password,
+      };
+
+      const response = await authService.login(loginData);
+
+      // First set the token
+      authService.setToken(response.token);
+
+      if (rememberMe) {
+        localStorage.setItem("remember_me", "true");
+      }
+
+      // Add a small delay to ensure token is set
+      setTimeout(() => {
+        router.push("/dashboard");
+        // Force a hard reload to ensure new auth state is picked up
+        router.refresh();
+      }, 100);
+    } catch (error) {
+      console.error("Login error:", error);
+      setError("Email atau password salah");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen">
@@ -46,17 +90,27 @@ export default function LoginPage() {
             Masuk ke akun Anda
           </h2>
 
+          {/* Error Message */}
+          {error && (
+            <div className="mb-4 p-3 text-sm text-red-500 bg-red-50 rounded-lg">
+              {error}
+            </div>
+          )}
+
           {/* Form */}
-          <form className="space-y-4 md:space-y-6">
-            {/* Username */}
+          <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+            {/* Email */}
             <div className="space-y-2">
               <label className="text-xs md:text-sm font-medium text-[#080808] tracking-[0.5px]">
-                Username
+                Email
               </label>
               <input
-                type="text"
-                placeholder="Masukan username"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Masukan email"
                 className="w-full h-10 md:h-[46px] px-3 md:px-5 rounded-lg border border-[#EAEAEA] focus:outline-none focus:ring-2 focus:ring-[#CF0000] text-xs md:text-sm"
+                required
               />
             </div>
 
@@ -68,8 +122,11 @@ export default function LoginPage() {
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="Masukan password"
                   className="w-full h-10 md:h-[46px] px-3 md:px-5 rounded-lg border border-[#EAEAEA] focus:outline-none focus:ring-2 focus:ring-[#CF0000] text-xs md:text-sm"
+                  required
                 />
                 <button
                   type="button"
@@ -90,7 +147,10 @@ export default function LoginPage() {
                 onChange={(e) => setRememberMe(e.target.checked)}
                 className="w-3 h-3 md:w-4 md:h-4 rounded border-gray-300 text-[#CF0000] focus:ring-[#CF0000]"
               />
-              <label htmlFor="remember" className="text-xs md:text-sm text-gray-600">
+              <label
+                htmlFor="remember"
+                className="text-xs md:text-sm text-gray-600"
+              >
                 Ingat preferensi saya
               </label>
             </div>
@@ -98,14 +158,18 @@ export default function LoginPage() {
             {/* Login Button */}
             <button
               type="submit"
-              className="w-full h-10 md:h-[46px] bg-[#CF0000] text-white rounded-lg font-medium text-xs md:text-base hover:bg-[#B00000] transition-colors"
+              disabled={isLoading}
+              className="w-full h-10 md:h-[46px] bg-[#CF0000] text-white rounded-lg font-medium text-xs md:text-base hover:bg-[#B00000] transition-colors disabled:bg-opacity-70 disabled:cursor-not-allowed"
             >
-              Masuk
+              {isLoading ? "Memproses..." : "Masuk"}
             </button>
 
             {/* Forgot Password */}
             <div className="text-center">
-              <a href="#" className="text-xs md:text-sm text-gray-600 hover:text-[#CF0000]">
+              <a
+                href="#"
+                className="text-xs md:text-sm text-gray-600 hover:text-[#CF0000]"
+              >
                 Lupa Password?
               </a>
             </div>
