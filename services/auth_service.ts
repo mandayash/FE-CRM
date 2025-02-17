@@ -1,80 +1,57 @@
 import {
-  LoginRequest,
+  LoginData,
   LoginResponse,
-  ForgotPasswordRequest,
+  ForgotPasswordData,
   ForgotPasswordResponse,
-  VerifyOTPRequest,
+  VerifyOTPData,
   VerifyOTPResponse,
-  ResetPasswordRequest,
+  ResetPasswordData,
   ResetPasswordResponse,
 } from "@/types/auth";
 
 const BASE_URL = "http://localhost:8080";
 
 export const authService = {
-  login: async (credentials: LoginRequest): Promise<LoginResponse> => {
+  login: async (credentials: LoginData): Promise<LoginResponse> => {
     try {
-      const response = await fetch("http://localhost:8080/auth/login", {
+      const response = await fetch(`${BASE_URL}/auth`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(credentials),
+        body: JSON.stringify({
+          meta: {
+            action: "login",
+          },
+          data: credentials,
+        }),
       });
 
       if (!response.ok) {
         throw new Error("Login failed");
       }
 
-      const data = await response.json();
-      return data;
+      return await response.json();
     } catch (error) {
       throw error;
     }
   },
 
-  setToken: (token: string): void => {
-    // Store in localStorage
-    localStorage.setItem("auth_token", token);
-
-    // Also set in cookie for middleware
-    document.cookie = `auth_token=${token}; path=/; max-age=1800`;
-  },
-
-  getToken: (): string | null => {
-    return localStorage.getItem("auth_token");
-  },
-
-  removeToken: (): void => {
-    try {
-      localStorage.removeItem("auth_token");
-      document.cookie =
-        "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax";
-    } catch (error) {
-      console.error("Error removing token:", error);
-    }
-  },
-
-  logout: async (): Promise<void> => {
-    try {
-      authService.removeToken();
-      window.location.href = "/login";
-    } catch (error) {
-      console.error("Logout error:", error);
-    }
-  },
-
-  // Forgot Password
   forgotPassword: async (
-    data: ForgotPasswordRequest
+    data: ForgotPasswordData
   ): Promise<ForgotPasswordResponse> => {
     try {
-      const response = await fetch(`${BASE_URL}/auth/forgot-password`, {
+      const response = await fetch(`${BASE_URL}/auth`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          meta: {
+            action: "forgot_password",
+          },
+          data,
+        }),
       });
 
       if (!response.ok) {
@@ -87,15 +64,19 @@ export const authService = {
     }
   },
 
-  // Verify OTP
-  verifyOTP: async (data: VerifyOTPRequest): Promise<VerifyOTPResponse> => {
+  verifyOTP: async (data: VerifyOTPData): Promise<VerifyOTPResponse> => {
     try {
-      const response = await fetch(`${BASE_URL}/auth/verify-otp`, {
+      const response = await fetch(`${BASE_URL}/auth`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          meta: {
+            action: "verify_otp",
+          },
+          data,
+        }),
       });
 
       if (!response.ok) {
@@ -108,17 +89,21 @@ export const authService = {
     }
   },
 
-  // Reset Password
   resetPassword: async (
-    data: ResetPasswordRequest
+    data: ResetPasswordData
   ): Promise<ResetPasswordResponse> => {
     try {
-      const response = await fetch(`${BASE_URL}/auth/reset-password`, {
+      const response = await fetch(`${BASE_URL}/auth`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          meta: {
+            action: "reset_password",
+          },
+          data,
+        }),
       });
 
       if (!response.ok) {
@@ -128,6 +113,37 @@ export const authService = {
       return await response.json();
     } catch (error) {
       throw error;
+    }
+  },
+
+  // Token management methods remain the same
+  setToken: (token: string): void => {
+    localStorage.setItem("auth_token", token);
+    document.cookie = `auth_token=${token}; path=/; max-age=86400`;
+  },
+
+  getToken: (): string | null => {
+    return localStorage.getItem("auth_token");
+  },
+
+  removeToken: (): void => {
+    localStorage.removeItem("auth_token");
+    document.cookie =
+      "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT";
+  },
+
+  isAuthenticated: (): boolean => {
+    return !!localStorage.getItem("auth_token");
+  },
+
+  logout: (): void => {
+    try {
+      // Remove token from both localStorage and cookie
+      localStorage.removeItem("auth_token");
+      document.cookie =
+        "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT";
+    } catch (error) {
+      console.error("Logout error:", error);
     }
   },
 };
