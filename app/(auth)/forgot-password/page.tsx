@@ -1,12 +1,38 @@
-'use client';
-
-import Image from 'next/image';
-import Link from 'next/link';
+"use client";
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
+import { authService } from "@/services/auth_service";
+import { useRouter } from "next/navigation";
 
 export default function ForgotPasswordPage() {
-  const handleSubmit = (e: React.FormEvent) => {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Logic untuk mengirim kode verifikasi
+    setError("");
+    setSuccessMessage("");
+    setIsLoading(true);
+
+    try {
+      const response = await authService.forgotPassword({ email });
+      setSuccessMessage(response.message);
+
+      // Navigate to OTP verification page after short delay
+      setTimeout(() => {
+        router.push(
+          `/forgot-password/verify?email=${encodeURIComponent(email)}`
+        );
+      }, 2000);
+    } catch {
+      setError("Terjadi kesalahan. Silakan coba lagi.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -52,6 +78,20 @@ export default function ForgotPasswordPage() {
             Silakan masukkan alamat email Anda untuk menerima kode verifikasi.
           </p>
 
+          {/* Error Message */}
+          {error && (
+            <div className="mb-4 p-3 text-sm text-red-500 bg-red-50 rounded-lg">
+              {error}
+            </div>
+          )}
+
+          {/* Success Message */}
+          {successMessage && (
+            <div className="mb-4 p-3 text-sm text-green-500 bg-green-50 rounded-lg">
+              {successMessage}
+            </div>
+          )}
+
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
             {/* Email Input */}
@@ -61,23 +101,28 @@ export default function ForgotPasswordPage() {
               </label>
               <input
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="Masukan alamat email"
                 className="w-full h-10 md:h-[46px] px-3 md:px-5 rounded-lg border border-[#EAEAEA] focus:outline-none focus:ring-2 focus:ring-[#CF0000] text-xs md:text-sm"
+                required
+                disabled={isLoading}
               />
             </div>
 
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full h-10 md:h-[46px] bg-[#CF0000] text-white rounded-lg font-medium text-xs md:text-base hover:bg-[#B00000] transition-colors"
+              disabled={isLoading}
+              className="w-full h-10 md:h-[46px] bg-[#CF0000] text-white rounded-lg font-medium text-xs md:text-base hover:bg-[#B00000] transition-colors disabled:bg-opacity-70 disabled:cursor-not-allowed"
             >
-              Kirim
+              {isLoading ? "Memproses..." : "Kirim"}
             </button>
 
             {/* Back to Login */}
             <div className="text-center">
-              <Link 
-                href="/login" 
+              <Link
+                href="/login"
                 className="text-xs md:text-sm text-gray-600 hover:text-[#CF0000]"
               >
                 Kembali ke halaman login

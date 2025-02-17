@@ -167,7 +167,7 @@ export default function LoginPage() {
             {/* Forgot Password */}
             <div className="text-center">
               <a
-                href="#"
+                href="/forgot-password"
                 className="text-xs md:text-sm text-gray-600 hover:text-[#CF0000]"
               >
                 Lupa Password?

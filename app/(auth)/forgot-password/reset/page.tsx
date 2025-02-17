@@ -1,20 +1,78 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import Image from "next/image";
+import { useState, useEffect } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { authService } from "@/services/auth_service";
+import { useToast } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
 
 export default function ResetPasswordPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email");
+  const { toast } = useToast();
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
-    password: '',
-    confirmPassword: ''
+    password: "",
+    confirmPassword: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (!email) {
+      router.push("/forgot-password");
+    }
+  }, [email, router]);
+
+  const validatePassword = () => {
+    if (formData.password.length < 8) {
+      setError("Password minimal 8 karakter");
+      return false;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setError("Password tidak cocok");
+      return false;
+    }
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle password reset logic
+    setError("");
+
+    if (!validatePassword()) return;
+    setIsLoading(true);
+
+    try {
+      await authService.resetPassword({
+        email: email!,
+        new_password: formData.password,
+        confirm_password: formData.confirmPassword,
+      });
+
+      // Show success toast
+      toast({
+        title: "Berhasil!",
+        description:
+          "Password anda telah berhasil diubah. Anda akan diarahkan ke halaman login.",
+        duration: 3000,
+      });
+
+      // Tunggu 3 detik sebelum redirect
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      // Redirect to login after successful reset
+      router.push("/login");
+    } catch {
+      setError("Gagal mengubah password. Silakan coba lagi.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -56,9 +114,17 @@ export default function ResetPasswordPage() {
               Buat password baru
             </h2>
             <p className="text-xs md:text-sm text-gray-600">
-              Kata sandi baru anda harus berbeda dari kata sandi yang digunakan sebelumnya.
+              Kata sandi baru anda harus berbeda dari kata sandi yang digunakan
+              sebelumnya.
             </p>
           </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="mb-4 p-3 text-sm text-red-500 bg-red-50 rounded-lg">
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
             {/* New Password */}
@@ -71,8 +137,13 @@ export default function ResetPasswordPage() {
                   type={showPassword ? "text" : "password"}
                   placeholder="Masukan Password baru"
                   value={formData.password}
-                  onChange={(e) => setFormData({...formData, password: e.target.value})}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
                   className="w-full h-10 md:h-[46px] px-3 md:px-4 pr-10 md:pr-12 rounded-lg border border-[#EAEAEA] focus:outline-none focus:ring-2 focus:ring-[#CF0000] text-xs md:text-sm"
+                  disabled={isLoading}
+                  required
+                  minLength={8}
                 />
                 <button
                   type="button"
@@ -94,15 +165,26 @@ export default function ResetPasswordPage() {
                   type={showConfirmPassword ? "text" : "password"}
                   placeholder="Masukan konfirmasi password"
                   value={formData.confirmPassword}
-                  onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      confirmPassword: e.target.value,
+                    })
+                  }
                   className="w-full h-10 md:h-[46px] px-3 md:px-4 pr-10 md:pr-12 rounded-lg border border-[#EAEAEA] focus:outline-none focus:ring-2 focus:ring-[#CF0000] text-xs md:text-sm"
+                  disabled={isLoading}
+                  required
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 text-gray-500"
                 >
-                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {showConfirmPassword ? (
+                    <EyeOff size={20} />
+                  ) : (
+                    <Eye size={20} />
+                  )}
                 </button>
               </div>
             </div>
@@ -110,13 +192,17 @@ export default function ResetPasswordPage() {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full h-10 md:h-[46px] bg-[#CF0000] text-white rounded-lg font-medium text-xs md:text-base hover:bg-[#B00000] transition-colors"
+              disabled={
+                isLoading || !formData.password || !formData.confirmPassword
+              }
+              className="w-full h-10 md:h-[46px] bg-[#CF0000] text-white rounded-lg font-medium text-xs md:text-base hover:bg-[#B00000] transition-colors disabled:bg-opacity-70 disabled:cursor-not-allowed"
             >
-              Kirim
+              {isLoading ? "Memproses..." : "Kirim"}
             </button>
           </form>
         </div>
       </div>
+      <Toaster />
     </div>
   );
 }

@@ -1,10 +1,22 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { useState, useRef } from 'react';
+import Image from "next/image";
+import { useState, useRef, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { authService } from "@/services/auth_service";
 
 export default function VerifyCodePage() {
-  const [code, setCode] = useState(['', '', '', '', '', '']);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email");
+
+  const [code, setCode] = useState(["", "", "", "", "", ""]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [resendDisabled, setResendDisabled] = useState(false);
+  const [countdown, setCountdown] = useState(0);
+
   const inputRefs = [
     useRef<HTMLInputElement>(null),
     useRef<HTMLInputElement>(null),
@@ -14,29 +26,84 @@ export default function VerifyCodePage() {
     useRef<HTMLInputElement>(null),
   ];
 
-  const handleChange = (index: number, value: string) => {
-    // Update kode
-    const newCode = [...code];
-    newCode[index] = value;
-    setCode(newCode);
+  useEffect(() => {
+    if (!email) {
+      router.push("/forgot-password");
+    }
+  }, [email, router]);
 
-    // Auto focus ke input berikutnya
-    if (value && index < 5) {
-      inputRefs[index + 1].current?.focus();
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
+    } else {
+      setResendDisabled(false);
+    }
+  }, [countdown]);
+
+  const handleChange = (index: number, value: string) => {
+    if (value.length <= 1 && /^\d*$/.test(value)) {
+      const newCode = [...code];
+      newCode[index] = value;
+      setCode(newCode);
+
+      if (value && index < 5) {
+        inputRefs[index + 1].current?.focus();
+      }
     }
   };
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    // Kembali ke input sebelumnya saat backspace
-    if (e.key === 'Backspace' && !code[index] && index > 0) {
+  const handleKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    if (e.key === "Backspace" && !code[index] && index > 0) {
       inputRefs[index - 1].current?.focus();
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleResendCode = async () => {
+    if (!email || resendDisabled) return;
+
+    setError("");
+    setResendDisabled(true);
+    setCountdown(60); // 60 seconds countdown
+
+    try {
+      await authService.forgotPassword({ email });
+      setSuccessMessage("Kode verifikasi baru telah dikirim");
+    } catch {
+      setError("Gagal mengirim kode verifikasi");
+      setResendDisabled(false);
+      setCountdown(0);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const verificationCode = code.join('');
-    console.log('Verification code:', verificationCode);
+    if (!email) return;
+
+    setError("");
+    setSuccessMessage("");
+    setIsLoading(true);
+
+    const otp = code.join("");
+
+    try {
+      await authService.verifyOTP({ email, otp });
+      setSuccessMessage("Verifikasi berhasil");
+
+      // Redirect to reset password page after short delay
+      setTimeout(() => {
+        router.push(
+          `/forgot-password/reset?email=${encodeURIComponent(email)}`
+        );
+      }, 1500);
+    } catch {
+      setError("Kode verifikasi tidak valid");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -78,9 +145,23 @@ export default function VerifyCodePage() {
               Verifikasi Email Anda
             </h2>
             <p className="text-xs md:text-sm text-gray-600">
-              Silakan masukkan kode 6 digit yang dikirim ke anandita@gmail.com.
+              Silakan masukkan kode 6 digit yang dikirim ke {email}.
             </p>
           </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="mb-4 p-3 text-sm text-red-500 bg-red-50 rounded-lg">
+              {error}
+            </div>
+          )}
+
+          {/* Success Message */}
+          {successMessage && (
+            <div className="mb-4 p-3 text-sm text-green-500 bg-green-50 rounded-lg">
+              {successMessage}
+            </div>
+          )}
 
           {/* Verification Code Input */}
           <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
@@ -94,7 +175,8 @@ export default function VerifyCodePage() {
                   value={digit}
                   onChange={(e) => handleChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
-                  className="w-10 h-10 md:w-12 md:h-12 text-center text-base md:text-lg font-bold border border-[#EAEAEA] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CF0000]"
+                  disabled={isLoading}
+                  className="w-10 h-10 md:w-12 md:h-12 text-center text-base md:text-lg font-bold border border-[#EAEAEA] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CF0000] disabled:bg-gray-100 disabled:text-gray-400"
                 />
               ))}
             </div>
@@ -102,18 +184,23 @@ export default function VerifyCodePage() {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full h-10 md:h-[46px] bg-[#CF0000] text-white rounded-lg font-medium text-xs md:text-base hover:bg-[#B00000] transition-colors"
+              disabled={isLoading || code.some((digit) => !digit)}
+              className="w-full h-10 md:h-[46px] bg-[#CF0000] text-white rounded-lg font-medium text-xs md:text-base hover:bg-[#B00000] transition-colors disabled:bg-opacity-70 disabled:cursor-not-allowed"
             >
-              Kirim
+              {isLoading ? "Memproses..." : "Verifikasi"}
             </button>
 
             {/* Resend Code */}
             <div className="text-center">
-              <button 
+              <button
                 type="button"
-                className="text-xs md:text-sm text-gray-600 hover:text-[#CF0000]"
+                onClick={handleResendCode}
+                disabled={resendDisabled}
+                className="text-xs md:text-sm text-gray-600 hover:text-[#CF0000] disabled:text-gray-400 disabled:hover:text-gray-400"
               >
-                Kirim ulang kode
+                {countdown > 0
+                  ? `Kirim ulang kode dalam ${countdown}s`
+                  : "Kirim ulang kode"}
               </button>
             </div>
           </form>
