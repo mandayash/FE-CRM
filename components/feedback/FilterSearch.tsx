@@ -57,6 +57,15 @@ const FilterSearch = ({
     onFilterChange(apiFilter);
   };
 
+  // Add the missing toggleColumn function
+  const toggleColumn = (columnName: keyof ColumnVisibility) => {
+    const updatedColumns = {
+      ...columns,
+      [columnName]: !columns[columnName],
+    };
+    onColumnChange(updatedColumns);
+  };
+
   // Add debounce effect for live search updates
   useEffect(() => {
     const debounceTimeout = setTimeout(() => {

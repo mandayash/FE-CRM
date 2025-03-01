@@ -176,7 +176,7 @@ export const feedbackService = {
     try {
       console.log(`Service received filter: ${filter}`);
 
-      // Request all feedbacks (no filter in request)
+      // Create request body
       const requestBody = {
         meta: {
           action: "get_all_feedbacks",
@@ -184,6 +184,7 @@ export const feedbackService = {
         data: {},
       };
 
+      // Add client-side filtering as a fallback
       const response = await fetch(ADMIN_URL, {
         method: "POST",
         headers: {
