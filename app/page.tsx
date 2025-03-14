@@ -1,39 +1,26 @@
-// page.tsx
-'use client';
+"use client";
 
-import DashboardStats from '@/components/dashboard/DashboardStats';
-import UsersBarChart from '@/components/dashboard/UsersBarChart';
-import RatingStats from '@/components/dashboard/RatingStats';
-import LevelStats from '@/components/dashboard/LevelStats';
-import FeedbackData from '@/components/dashboard/FeedbackData';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
-const DashboardPage = () => {
+export default function Home() {
+  const { isAuthenticated, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading) {
+      if (isAuthenticated) {
+        router.push("/dashboard");
+      } else {
+        router.push("/login");
+      }
+    }
+  }, [isAuthenticated, loading, router]);
+
   return (
-    <div className="space-y-6">
-      {/* Stats Cards */}
-      <DashboardStats />
-      
-      {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <UsersBarChart />
-        </div>
-        <div>
-          <RatingStats />
-        </div>
-      </div>
-      
-      {/* Bottom Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <FeedbackData />
-        </div>
-        <div>
-          <LevelStats />
-        </div>
-      </div>
+    <div className="h-screen w-full flex items-center justify-center">
+      <div className="animate-pulse">Loading...</div>
     </div>
   );
-};
-
-export default DashboardPage;
+}

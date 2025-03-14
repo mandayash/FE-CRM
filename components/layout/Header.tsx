@@ -1,23 +1,48 @@
-'use client'
-
-import { useState } from 'react'
-import { usePathname } from 'next/navigation'
-import Image from 'next/image'
-import { Search, Bell, Menu } from 'lucide-react'
+// components/layout/Header.tsx
+"use client";
+import { usePathname, useRouter } from "next/navigation";
+import Image from "next/image";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { LogOut, User } from "lucide-react";
+import { useState, useEffect } from "react";
 
 const Header = () => {
-  const pathname = usePathname()
-  const [isSearchOpen, setIsSearchOpen] = useState(false)
-  
+  const pathname = usePathname();
+  const router = useRouter();
+  const { user, logout } = useAuth();
+
+  // For hydration protection
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const getPageTitle = (path: string) => {
-    switch(path) {
-      case '/': return 'Dashboard'
-      case '/feedback': return 'Data Feedback'
-      case '/users': return 'Data Pengguna'
-      case '/articles': return 'Kelola Artikel'
-      default: return 'Dashboard'
+    switch (path) {
+      case "/dashboard":
+        return "Dashboard";
+      case "/feedback":
+        return "Data Feedback";
+      case "/users":
+        return "Data Pengguna";
+      case "/articles":
+        return "Kelola Artikel";
+      default:
+        return "Dashboard";
     }
-  }
+  };
+
+  const handleLogout = () => {
+    console.log("Logging out...");
+    logout();
+  };
 
   return (
     <header className="sticky top-0 left-0 right-0 z-50 bg-white border-b w-full">
@@ -26,75 +51,54 @@ const Header = () => {
         <h1 className="text-lg sm:text-2xl font-medium text-primary truncate">
           {getPageTitle(pathname)}
         </h1>
-
-        {/* Right Section: Search & Profile */}
+        {/* Right Section: Profile */}
         <div className="flex items-center gap-2 sm:gap-5 ml-auto">
-          {/* Search Bar - Desktop */}
-          <div className="hidden md:block relative">
-            <input
-              type="text"
-              placeholder="Search placeholder"
-              className="w-[283px] h-[40px] px-4 pl-12 rounded-full bg-[#F5F5F5] border-none focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm"
-            />
-            <Search 
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" 
-              size={20} 
-            />
-          </div>
-
-          {/* Search Icon - Mobile */}
-          <button 
-            className="md:hidden p-1.5 sm:p-2 hover:bg-gray-100 rounded-full transition-colors"
-            onClick={() => setIsSearchOpen(!isSearchOpen)}
-          >
-            <Search className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
-          </button>
-
-          {/* Mobile Search Input */}
-          {isSearchOpen && (
-            <div className="absolute top-full left-0 right-0 p-4 bg-white border-b md:hidden">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search placeholder"
-                  className="w-full h-[40px] px-4 pl-12 rounded-full bg-[#F5F5F5] border-none focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm"
-                />
-                <Search 
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" 
-                  size={20} 
-                />
-              </div>
-            </div>
+          {/* Profile Dropdown */}
+          {mounted && (
+            <DropdownMenu>
+              <DropdownMenuTrigger className="focus:outline-none">
+                <div className="flex items-center gap-2 sm:gap-5">
+                  <div className="hidden md:block text-right">
+                    <p className="font-medium truncate">
+                      {user?.name || "Admin"}
+                    </p>
+                    <p className="text-sm text-gray-500 truncate">
+                      {user?.role || "Admin"}
+                    </p>
+                  </div>
+                  <div className="relative h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0 cursor-pointer">
+                    <Image
+                      src="/images/profile-placeholder.png"
+                      alt="Admin Profile"
+                      fill
+                      className="rounded-full object-cover"
+                    />
+                  </div>
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem
+                  onClick={() => router.push("/profile")}
+                  className="cursor-pointer"
+                >
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="cursor-pointer text-red-600"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Logout</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
-
-          {/* Notification */}
-          <div className="relative">
-            <button className="p-1.5 sm:p-2 hover:bg-[#CF0000]/10 rounded-full transition-colors">
-              <Bell className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
-            </button>
-            <span className="absolute top-1.5 sm:top-2 right-1.5 sm:right-2 w-2 sm:w-2.5 h-2 sm:h-2.5 bg-red-500 rounded-full"/>
-          </div>
-
-          {/* Profile */}
-          <div className="flex items-center gap-2 sm:gap-5">
-            <div className="hidden md:block text-right">
-              <p className="font-medium truncate">Anandita</p>
-              <p className="text-sm text-gray-500 truncate">Admin</p>
-            </div>
-            
-            <div className="relative h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0">
-              <Image
-                src="/images/profile-placeholder.png"
-                alt="Admin Profile"
-                fill
-                className="rounded-full object-cover"
-              />
-            </div>
-          </div>
         </div>
       </div>
     </header>
-  )
-}
+  );
+};
 
-export default Header
+export default Header;
