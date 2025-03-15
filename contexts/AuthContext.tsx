@@ -1,4 +1,4 @@
-// contexts/AuthContext.tsx
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { User } from "@/types/user";
@@ -34,10 +34,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const fetchUserData = async () => {
       try {
+        // Cek dulu apakah ada data user terenkripsi di localStorage
+        const encryptedUserData = localStorage.getItem("user_data");
+        if (encryptedUserData) {
+          // Dekripsi data user
+          const decryptedUser = decryptData(encryptedUserData);
+          console.log("Decrypted user data:", decryptedUser);
+
+          if (decryptedUser) {
+            setUser(decryptedUser);
+            setIsAuthenticated(true);
+            setLoading(false);
+            return; // Keluar dari fungsi jika berhasil mendapatkan data dari localStorage
+          }
+        }
+
+        // Jika tidak ada data di localStorage atau gagal dekripsi, coba ambil dari API
         const userData = await userService.getProfile();
         setUser(userData);
         setIsAuthenticated(true);
-      } catch {
+      } catch (error) {
+        console.error("Error fetching user data:", error);
         setUser(null);
         setIsAuthenticated(false);
       } finally {
@@ -71,6 +88,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       // Update state
       setUser(response.data.user);
+      setIsAuthenticated(true);
 
       console.log("Login berhasil:", response.data);
     } catch (error) {
@@ -85,7 +103,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     deleteCookie("token");
     // Hapus data localStorage
     localStorage.removeItem("user_data");
+    // Reset state
     setUser(null);
+    setIsAuthenticated(false);
+    // Redirect ke halaman login
     window.location.href = "/login";
   };
 

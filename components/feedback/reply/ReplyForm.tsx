@@ -1,26 +1,23 @@
-'use client';
+"use client";
 
-import React, { useState, Fragment } from 'react';
-import { useEditor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import SuccessModal from '@/components/feedback/SuccessModal';
-import { useRouter } from 'next/navigation';
+import React, { useState, Fragment } from "react";
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import SuccessModal from "@/components/feedback/SuccessModal";
 
-
-import { 
-  Bold, 
-  Italic, 
-  Link2, 
-  List, 
+import {
+  Bold,
+  Italic,
+  Link2,
+  List,
   ListOrdered,
   Quote,
   Undo2,
   Redo2,
   ChevronDown,
   IndentIcon,
-  ArrowLeft,
-  OutdentIcon
-} from 'lucide-react';
+  OutdentIcon,
+} from "lucide-react";
 
 interface ReplyFormProps {
   onSubmit?: (data: { title: string; content: string }) => void;
@@ -34,7 +31,6 @@ const MenuBar = ({ editor }: { editor: any }) => {
   }
 
   return (
-    
     <div className="flex flex-wrap items-center gap-1 p-1 mb-2 border rounded-lg bg-white overflow-x-auto">
       {/* Paragraph Dropdown */}
       <div className="relative">
@@ -44,14 +40,13 @@ const MenuBar = ({ editor }: { editor: any }) => {
         </button>
       </div>
 
-
       <div className="w-[1px] h-6 bg-gray-200 mx-1" />
 
       {/* Text Formatting */}
       <button
         onClick={() => editor.chain().focus().toggleBold().run()}
         className={`p-1.5 sm:p-2 hover:bg-gray-100 rounded ${
-          editor.isActive('bold') ? 'bg-gray-100' : ''
+          editor.isActive("bold") ? "bg-gray-100" : ""
         }`}
       >
         <Bold size={16} className="sm:w-[18px] sm:h-[18px]" />
@@ -60,7 +55,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <button
         onClick={() => editor.chain().focus().toggleItalic().run()}
         className={`p-1.5 sm:p-2 hover:bg-gray-100 rounded ${
-          editor.isActive('italic') ? 'bg-gray-100' : ''
+          editor.isActive("italic") ? "bg-gray-100" : ""
         }`}
       >
         <Italic size={16} className="sm:w-[18px] sm:h-[18px]" />
@@ -69,7 +64,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <button
         onClick={() => editor.chain().focus().toggleLink().run()}
         className={`p-1.5 sm:p-2 hover:bg-gray-100 rounded ${
-          editor.isActive('link') ? 'bg-gray-100' : ''
+          editor.isActive("link") ? "bg-gray-100" : ""
         }`}
       >
         <Link2 size={16} className="sm:w-[18px] sm:h-[18px]" />
@@ -81,7 +76,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <button
         onClick={() => editor.chain().focus().toggleBulletList().run()}
         className={`p-1.5 sm:p-2 hover:bg-gray-100 rounded ${
-          editor.isActive('bulletList') ? 'bg-gray-100' : ''
+          editor.isActive("bulletList") ? "bg-gray-100" : ""
         }`}
       >
         <List size={16} className="sm:w-[18px] sm:h-[18px]" />
@@ -90,7 +85,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <button
         onClick={() => editor.chain().focus().toggleOrderedList().run()}
         className={`p-1.5 sm:p-2 hover:bg-gray-100 rounded ${
-          editor.isActive('orderedList') ? 'bg-gray-100' : ''
+          editor.isActive("orderedList") ? "bg-gray-100" : ""
         }`}
       >
         <ListOrdered size={16} className="sm:w-[18px] sm:h-[18px]" />
@@ -119,7 +114,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <button
         onClick={() => editor.chain().focus().toggleBlockquote().run()}
         className={`p-1.5 sm:p-2 hover:bg-gray-100 rounded ${
-          editor.isActive('blockquote') ? 'bg-gray-100' : ''
+          editor.isActive("blockquote") ? "bg-gray-100" : ""
         }`}
       >
         <Quote size={16} className="sm:w-[18px] sm:h-[18px]" />
@@ -146,26 +141,26 @@ const MenuBar = ({ editor }: { editor: any }) => {
 };
 
 const ReplyForm = ({ onSubmit, onSave }: ReplyFormProps) => {
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const router = useRouter();
-  
+
   const editor = useEditor({
     extensions: [StarterKit],
     editorProps: {
       attributes: {
-        class: 'min-h-[150px] w-full rounded-lg border border-[#EAEAEA] bg-white p-3 focus:outline-none prose prose-sm max-w-none'
-      }
-    }
+        class:
+          "min-h-[150px] w-full rounded-lg border border-[#EAEAEA] bg-white p-3 focus:outline-none prose prose-sm max-w-none",
+      },
+    },
   });
 
   const handleSubmit = () => {
     if (onSubmit) {
       onSubmit({
         title,
-        content: editor?.getHTML() || ''
+        content: editor?.getHTML() || "",
       });
-      setShowSuccessModal(true); 
+      setShowSuccessModal(true);
     }
   };
 
@@ -173,7 +168,7 @@ const ReplyForm = ({ onSubmit, onSave }: ReplyFormProps) => {
     if (onSave) {
       onSave({
         title,
-        content: editor?.getHTML() || ''
+        content: editor?.getHTML() || "",
       });
     }
   };
@@ -193,7 +188,7 @@ const ReplyForm = ({ onSubmit, onSave }: ReplyFormProps) => {
         {/* Form */}
         <div className="space-y-4 sm:space-y-5">
           {/* Title Input */}
-          <div className="space-y-1.5 sm:space-y-2">
+          {/* <div className="space-y-1.5 sm:space-y-2">
             <label className="text-xs sm:text-sm font-medium leading-[150%] tracking-[0.5px] text-[#080808]">
               Judul*
             </label>
@@ -204,7 +199,7 @@ const ReplyForm = ({ onSubmit, onSave }: ReplyFormProps) => {
               placeholder="Masukan Judul Balasan Feedback"
               className="w-full h-10 sm:h-[46px] px-2.5 rounded-lg border border-[#EAEAEA] bg-white text-xs sm:text-sm font-normal leading-[150%] tracking-[0.5px] text-[#828282] focus:outline-none"
             />
-          </div>
+          </div> */}
 
           {/* Editor */}
           <div className="space-y-1.5 sm:space-y-2">
@@ -233,7 +228,7 @@ const ReplyForm = ({ onSubmit, onSave }: ReplyFormProps) => {
         </div>
       </div>
 
-      <SuccessModal 
+      <SuccessModal
         isOpen={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
       />

@@ -1,13 +1,19 @@
-'use client';
+// components/feedback/FeedbackTable.tsx
+"use client";
 
-import React from 'react';
-import { useState } from 'react';
-import Image from 'next/image';
-import { Star, Pencil, Trash, ChevronLeft, ChevronRight, ArrowUpDown, FileText } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import DeleteModal from './DeleteModal';
-import DeleteConfirmationModal from './DeleteConfirmationModal';
-
+import React, { useState, useEffect } from "react";
+import {
+  Pencil,
+  Trash,
+  ChevronLeft,
+  ChevronRight,
+  ArrowUpDown,
+  FileText,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import DeleteModal from "./DeleteModal";
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
+import { ColumnVisibility } from "./FilterSearch";
 
 import {
   Table,
@@ -18,376 +24,358 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-interface FeedbackData {
-  id: string;
-  date: string;
-  user: {
-    name: string;
-    email: string;
-    avatar: string;
-  };
-  type: string;
-  message: string;
-  documentation: string;
-  rating: number;
-  status: 'Selesai' | 'Belum';
+interface FeedbackTableProps {
+  feedbacks: any[];
+  loading: boolean;
+  error: string | null;
+  columns: ColumnVisibility;
+  currentPage: number;
+  totalItems: number;
+  itemsPerPage: number;
+  sortOrder: "asc" | "desc";
+  onSort: (field: string) => void; // Pastikan ini ada
+  onPageChange: (page: number) => void;
+  onItemsPerPageChange: (size: number) => void;
+  onSortToggle: () => void;
 }
 
-const FeedbackTable = () => {
+const FeedbackTable: React.FC<FeedbackTableProps> = ({
+  feedbacks,
+  loading,
+  error,
+  columns,
+  currentPage,
+  totalItems,
+  itemsPerPage,
+  sortField,
+  onSort,
+  onPageChange,
+  onItemsPerPageChange,
+}) => {
   const router = useRouter();
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
-  const [selectedFeedbacks, setSelectedFeedbacks] = useState<FeedbackData[]>([]);
+  const [selectedFeedback, setSelectedFeedback] = useState(null);
+  const [viewedFeedbacks, setViewedFeedbacks] = useState<number[]>([]);
 
-    const handleDeleteClick = (feedback: FeedbackData) => {
-      setSelectedFeedbacks([feedback]);
-      setShowDeleteConfirmation(true);
-    };
+  // Load viewed feedbacks from localStorage
+  useEffect(() => {
+    const storedViewed = localStorage.getItem("viewed_feedbacks");
+    if (storedViewed) {
+      setViewedFeedbacks(JSON.parse(storedViewed));
+    }
+  }, []);
 
-    const handleConfirmDelete = () => {
-      // Proses hapus data
+  // Fungsi untuk menghapus feedback
+  const handleDeleteClick = (feedback) => {
+    setSelectedFeedback(feedback);
+    setShowDeleteConfirmation(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      // Implementasi penghapusan feedback di sini
       setShowDeleteConfirmation(false);
       setShowDeleteSuccess(true);
-      setSelectedFeedbacks([]);
-    };
+    } catch (err) {
+      console.error("Error deleting feedback:", err);
+    }
+  };
 
-  // Sample data
-  const feedbacks: FeedbackData[] = [
-    {
-      id: 'UF-1245',
-      date: '2028-02-27 04:28:48',
-      user: {
-        name: 'Sarah Miller',
-        email: 'smiller@gmail.com',
-        avatar: '/images/profile-placeholder.png'
-      },
-      type: 'Kritik dan Saran',
-      message: 'Fasilitas di dalam kereta bersih dan terawat.',
-      documentation: 'DSC21012.JPG',
-      rating: 5,
-      status: 'Selesai'
-    },
-    {
-        id: 'UF-1241',
-      date: '2028-02-27 04:28:48',
-      user: {
-        name: 'Sarah Miller',
-        email: 'smiller@gmail.com',
-        avatar: '/images/profile-placeholder.png'
-      },
-      type: 'Kritik dan Saran',
-      message: 'Fasilitas di dalam kereta bersih dan terawat.',
-      documentation: 'DSC21012.JPG',
-      rating: 5,
-      status: 'Selesai'
-    },
-    {
-        id: 'UF-1243',
-      date: '2028-02-27 04:28:48',
-      user: {
-        name: 'Sarah Miller',
-        email: 'smiller@gmail.com',
-        avatar: '/images/profile-placeholder.png'
-      },
-      type: 'Kritik dan Saran',
-      message: 'Fasilitas di dalam kereta bersih dan terawat.',
-      documentation: 'DSC21012.JPG',
-      rating: 5,
-      status: 'Belum'
-    },
-    {
-        id: 'UF-1243',
-      date: '2028-02-27 04:28:48',
-      user: {
-        name: 'Sarah Miller',
-        email: 'smiller@gmail.com',
-        avatar: '/images/profile-placeholder.png'
-      },
-      type: 'Kritik dan Saran',
-      message: 'Fasilitas di dalam kereta bersih dan terawat.',
-      documentation: 'DSC21012.JPG',
-      rating: 5,
-      status: 'Belum'
-    },
-    {
-        id: 'UF-1244',
-      date: '2028-02-27 04:28:48',
-      user: {
-        name: 'Sarah Miller',
-        email: 'smiller@gmail.com',
-        avatar: '/images/profile-placeholder.png'
-      },
-      type: 'Kritik dan Saran',
-      message: 'Fasilitas di dalam kereta bersih dan terawat.',
-      documentation: 'DSC21012.JPG',
-      rating: 5,
-      status: 'Belum'
-    },
-    {
-        id: 'UF-12451',
-      date: '2028-02-27 04:28:48',
-      user: {
-        name: 'Sarah Miller',
-        email: 'smiller@gmail.com',
-        avatar: '/images/profile-placeholder.png'
-      },
-      type: 'Kritik dan Saran',
-      message: 'Fasilitas di dalam kereta bersih dan terawat.',
-      documentation: 'DSC21012.JPG',
-      rating: 5,
-      status: 'Belum'
-    },
-    {
-        id: 'UF-1246',
-      date: '2028-02-27 04:28:48',
-      user: {
-        name: 'Sarah Miller',
-        email: 'smiller@gmail.com',
-        avatar: '/images/profile-placeholder.png'
-      },
-      type: 'Kritik dan Saran',
-      message: 'Fasilitas di dalam kereta bersih dan terawat.',
-      documentation: 'DSC21012.JPG',
-      rating: 5,
-      status: 'Belum'
-    },
-    {
-        id: 'UF-1247',
-      date: '2028-02-27 04:28:48',
-      user: {
-        name: 'Sarah Miller',
-        email: 'smiller@gmail.com',
-        avatar: '/images/profile-placeholder.png'
-      },
-      type: 'Kritik dan Saran',
-      message: 'Fasilitas di dalam kereta bersih dan terawat.',
-      documentation: 'DSC21012.JPG',
-      rating: 5,
-      status: 'Belum'
-    },
-    {
-        id: 'UF-1248',
-      date: '2028-02-27 04:28:48',
-      user: {
-        name: 'Sarah Miller',
-        email: 'smiller@gmail.com',
-        avatar: '/images/profile-placeholder.png'
-      },
-      type: 'Kritik dan Saran',
-      message: 'Fasilitas di dalam kereta bersih dan terawat.',
-      documentation: 'DSC21012.JPG',
-      rating: 5,
-      status: 'Belum'
-    },
-    {
-        id: 'UF-1249',
-      date: '2028-02-27 04:28:48',
-      user: {
-        name: 'Sarah Miller',
-        email: 'smiller@gmail.com',
-        avatar: '/images/profile-placeholder.png'
-      },
-      type: 'Kritik dan Saran',
-      message: 'Fasilitas di dalam kereta bersih dan terawat.',
-      documentation: 'DSC21012.JPG',
-      rating: 5,
-      status: 'Belum'
-    },
-    {
-        id: 'UF-1240',
-      date: '2028-02-27 04:28:48',
-      user: {
-        name: 'Sarah Miller',
-        email: 'smiller@gmail.com',
-        avatar: '/images/profile-placeholder.png'
-      },
-      type: 'Kritik dan Saran',
-      message: 'Fasilitas di dalam kereta bersih dan terawat.',
-      documentation: 'DSC21012.JPG',
-      rating: 5,
-      status: 'Belum'
-    },
-  ];
+  // Fungsi untuk format tanggal
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleString("id-ID", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+  };
+
+  // Fungsi untuk menandai feedback telah dilihat
+  const handleViewFeedback = (id) => {
+    if (!viewedFeedbacks.includes(id)) {
+      const newViewedFeedbacks = [...viewedFeedbacks, id];
+      setViewedFeedbacks(newViewedFeedbacks);
+      localStorage.setItem(
+        "viewed_feedbacks",
+        JSON.stringify(newViewedFeedbacks)
+      );
+    }
+  };
+
+  // Cek apakah feedback baru
+  const isNewFeedback = (feedback) => {
+    const createdDate = new Date(feedback.created_at);
+    const now = new Date();
+    const diffHours =
+      (now.getTime() - createdDate.getTime()) / (1000 * 60 * 60);
+
+    return (
+      diffHours < 24 &&
+      feedback.status === "PENDING" &&
+      !viewedFeedbacks.includes(feedback.id)
+    );
+  };
+
+  // Hitung total halaman
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  // Calculate starting index for the current page
+  const startIndex = (currentPage - 1) * itemsPerPage;
+
+  // Generate pagination numbers
+  const getPaginationNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+
+    if (totalPages <= maxVisiblePages) {
+      // Show all pages
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Show first page, last page, and pages around current page
+      pages.push(1);
+
+      // Add middle pages around current page
+      const startPage = Math.max(2, currentPage - 1);
+      const endPage = Math.min(totalPages - 1, currentPage + 1);
+
+      if (startPage > 2) pages.push("...");
+
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
+
+      if (endPage < totalPages - 1) pages.push("...");
+      pages.push(totalPages);
+    }
+
+    return pages;
+  };
+
+  if (loading) {
+    return (
+      <div className="animate-pulse p-4 bg-gray-100 rounded-lg">
+        Loading feedback data...
+      </div>
+    );
+  }
+
+  if (error) {
+    return <div className="p-4 bg-red-50 text-red-600 rounded-lg">{error}</div>;
+  }
 
   return (
     <div className="space-y-4">
       <Table>
         <TableHeader className="bg-[#EAEAEA]">
           <TableRow>
-            <TableCell className="w-[15px] p-2.5">
-              <input 
-                type="checkbox" 
-                className="w-[15px] h-[15px] border-[#C0C0C0] rounded"
-              />
-            </TableCell>
-            <TableHead className="flex items-center gap-1.5 text-[#080808] font-medium">
-              Feedback Id 
-              <ArrowUpDown size={12} className="text-[#080808]" />
-            </TableHead>
-            <TableHead>Tanggal</TableHead>
-            <TableHead>User</TableHead>
-            <TableHead>Jenis Feedback</TableHead>
-            <TableHead>Tanggal LRT</TableHead>
-            <TableHead>Stasiun</TableHead>
-            <TableHead>Feedback</TableHead>
-            <TableHead className="w-[100px]">Dokumentasi</TableHead>
-            <TableHead>
-              <div className="flex items-center gap-1.5">
-                Penilaian 
-                <ArrowUpDown size={12} className="text-[#080808]" />
-              </div>
-            </TableHead>
-            <TableHead>
-              <div className="flex items-center gap-1.5">
-                Status
-                <ArrowUpDown size={12} className="text-[#080808]" />
-              </div>
-            </TableHead>
-            <TableHead>Aksi</TableHead>
+            <TableHead className="w-[50px] text-center">No</TableHead>
+            {columns.id && (
+              <TableHead
+                onClick={() => onSort("id")}
+                className="flex items-center gap-1.5 text-[#080808] font-medium cursor-pointer"
+              >
+                <div className="flex items-center gap-1.5">
+                  Feedback Id
+                  <ArrowUpDown
+                    size={12}
+                    className={
+                      sortField === "id" ? "text-[#CF0000]" : "text-[#080808]"
+                    }
+                  />
+                </div>
+              </TableHead>
+            )}
+            {columns.date && <TableHead>Tanggal</TableHead>}
+            {columns.userId && <TableHead>User ID</TableHead>}
+            {columns.title && <TableHead>Judul Feedback</TableHead>}
+            {columns.content && <TableHead>Konten Feedback</TableHead>}
+            {columns.status && (
+              <TableHead
+                onClick={() => onSort("status")}
+                className="cursor-pointer"
+              >
+                <div className="flex items-center gap-1.5 text-[#080808] font-medium">
+                  Status
+                  <ArrowUpDown
+                    size={12}
+                    className={
+                      sortField === "status"
+                        ? "text-[#CF0000]"
+                        : "text-[#080808]"
+                    }
+                  />
+                </div>
+              </TableHead>
+            )}
+            {columns.action && <TableHead>Aksi</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
-          {feedbacks.map((feedback) => (
-            <TableRow key={feedback.id} className="h-[50px]">
-              <TableCell className="p-2.5">
-                <input 
-                  type="checkbox" 
-                  className="w-[15px] h-[15px] border-[#C0C0C0] rounded"
-                />
-              </TableCell>
-              <TableCell>{feedback.id}</TableCell>
-              <TableCell>{feedback.date}</TableCell>
-              <TableCell>
-                <div className="flex items-center gap-2">
-                  <Image
-                    src={feedback.user.avatar}
-                    alt={feedback.user.name}
-                    width={30}
-                    height={30}
-                    className="rounded-full"
-                  />
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium">{feedback.user.name}</span>
-                    <span className="text-xs text-gray-500">{feedback.user.email}</span>
-                  </div>
-                </div>
-              </TableCell>
-              <TableCell>{feedback.type}</TableCell>
-              <TableCell>{feedback.date}</TableCell>
-              <TableCell>DJKA</TableCell>
-              <TableCell className="max-w-[200px] truncate">
-                {feedback.message}
-              </TableCell>
-              <TableCell>{feedback.documentation}</TableCell>
-              <TableCell>
-                <div className="flex gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      size={20}
-                      className={i < feedback.rating 
-                        ? 'fill-[#E5B12F] text-[#E5B12F]' 
-                        : 'fill-gray-200 text-gray-200'
-                      }
-                    />
-                  ))}
-                </div>
-              </TableCell>
-              <TableCell>
-                <span className={`px-2 py-1 rounded text-xs
-                  ${feedback.status === 'Selesai' 
-                    ? 'bg-[#EEFBD1] text-[#1F5305]' 
-                    : 'bg-[#FCE6CF] text-[#CF0000]'
-                  }`}
-                >
-                  {feedback.status}
-                </span>
-              </TableCell>
-              <TableCell>
-              <div className="flex items-center gap-1.5">
-                {feedback.status === 'Selesai' ? (
-                  // Ikon untuk feedback yang sudah selesai
-                  <button
-                    onClick={() => router.push(`/feedback/${feedback.id}/reply`)}  
-                    className="p-1 hover:bg-gray-100 rounded"
-                  >
-                    <FileText size={18} className="text-gray-600" />  
-                  </button>
-                ) : (
-                  // Ikon untuk feedback yang belum selesai
-                  <>
-                    <button
-                      onClick={() => router.push(`/feedback/${feedback.id}`)}
-                      className="p-1 hover:bg-gray-100 rounded"
-                    >
-                      <Pencil size={18} className="text-gray-600" />
-                    </button>
-                    <button 
-                      onClick={() => handleDeleteClick(feedback)}
-                      className="p-1 hover:bg-gray-100 rounded"
-                    >
-                      <Trash size={18} className="text-gray-600" />
-                    </button>
-                  </>
-                )}
-              </div>
-            </TableCell>
-            {/* Modals */}
-            <DeleteConfirmationModal 
-              isOpen={showDeleteConfirmation}
-              onClose={() => setShowDeleteConfirmation(false)}
-              onConfirm={handleConfirmDelete}
-              selectedCount={selectedFeedbacks.length}
-            />
+          {feedbacks.map((feedback, index) => {
+            const isNew = isNewFeedback(feedback);
+            // Calculate the row number based on current page and index
+            const rowNumber = startIndex + index + 1;
 
-            <DeleteModal 
-              isOpen={showDeleteSuccess}
-              onClose={() => setShowDeleteSuccess(false)}
-            />
-            </TableRow>
-          ))}
+            return (
+              <TableRow key={feedback.id} className="h-[50px] relative">
+                <TableCell className="text-center font-medium text-gray-500">
+                  {rowNumber}
+                </TableCell>
+                {columns.id && (
+                  <TableCell className="relative">
+                    {/* Red dot for new feedback */}
+                    {isNew && (
+                      <span className="absolute w-2 h-2 bg-red-500 rounded-full -left-1 top-1/2 transform -translate-y-1/2"></span>
+                    )}
+                    FB-{feedback.id}
+                  </TableCell>
+                )}
+                {columns.date && (
+                  <TableCell>{formatDate(feedback.created_at)}</TableCell>
+                )}
+                {columns.userId && <TableCell>{feedback.user_id}</TableCell>}
+                {columns.title && (
+                  <TableCell className="max-w-[200px] truncate">
+                    {feedback.title}
+                  </TableCell>
+                )}
+                {columns.content && (
+                  <TableCell className="max-w-[200px] truncate">
+                    {feedback.content}
+                  </TableCell>
+                )}
+                {columns.status && (
+                  <TableCell>
+                    <span
+                      className={`px-2 py-1 rounded text-xs
+                      ${
+                        feedback.status === "RESPONDED"
+                          ? "bg-[#EEFBD1] text-[#1F5305]"
+                          : "bg-[#FCE6CF] text-[#CF0000]"
+                      }`}
+                    >
+                      {feedback.status === "RESPONDED" ? "Selesai" : "Belum"}
+                    </span>
+                  </TableCell>
+                )}
+                {columns.action && (
+                  <TableCell>
+                    <div className="flex items-center gap-1.5">
+                      {feedback.status === "RESPONDED" ? (
+                        // Ikon untuk feedback yang sudah direspon
+                        <button
+                          onClick={() => {
+                            handleViewFeedback(feedback.id);
+                            router.push(`/feedback/${feedback.id}/reply`);
+                          }}
+                          className="p-1 hover:bg-gray-100 rounded"
+                        >
+                          <FileText size={18} className="text-gray-600" />
+                        </button>
+                      ) : (
+                        // Ikon untuk feedback yang belum direspon
+                        <>
+                          <button
+                            onClick={() => {
+                              handleViewFeedback(feedback.id);
+                              router.push(`/feedback/${feedback.id}`);
+                            }}
+                            className="p-1 hover:bg-gray-100 rounded"
+                          >
+                            <Pencil size={18} className="text-gray-600" />
+                          </button>
+                          {/* <button
+                            onClick={() => handleDeleteClick(feedback)}
+                            className="p-1 hover:bg-gray-100 rounded"
+                          >
+                            <Trash size={18} className="text-gray-600" />
+                          </button> */}
+                        </>
+                      )}
+                    </div>
+                  </TableCell>
+                )}
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
 
       {/* Pagination */}
       <div className="flex items-center justify-between py-4">
         <div className="flex items-center gap-2 text-xs">
-        <span className="text-gray-500">
-            Show
-          </span>
-          <select className="bg-[#EAEAEA] px-2 py-1.5 rounded">
+          <span className="text-gray-500">Show</span>
+          <select
+            className="bg-[#EAEAEA] px-2 py-1.5 rounded"
+            value={itemsPerPage}
+            onChange={(e) => onItemsPerPageChange(parseInt(e.target.value))}
+          >
             <option>12</option>
             <option>24</option>
             <option>36</option>
           </select>
           <span className="text-gray-500">
-            out of 472,322
+            out of {totalItems.toLocaleString()}
           </span>
         </div>
 
         <div className="flex items-center gap-2">
-          <button className="p-1.5 bg-[#EAEAEA] rounded-lg">
+          <button
+            className="p-1.5 bg-[#EAEAEA] rounded-lg disabled:opacity-50"
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
             <ChevronLeft size={16} className="text-[#080808]" />
           </button>
-          
-          {[1, 2, 3, '...', 15].map((page, i) => (
+
+          {getPaginationNumbers().map((page, i) => (
             <button
               key={i}
+              onClick={() =>
+                typeof page === "number" ? onPageChange(page) : null
+              }
               className={`w-[30px] h-[30px] flex items-center justify-center rounded-lg text-xs
-                ${page === 1 
-                  ? 'bg-[#CF0000] text-white' 
-                  : 'bg-[#EAEAEA] text-[#080808]'
+                ${
+                  page === currentPage
+                    ? "bg-[#CF0000] text-white"
+                    : page === "..."
+                    ? "bg-transparent cursor-default"
+                    : "bg-[#EAEAEA] text-[#080808]"
                 }`}
             >
               {page}
             </button>
           ))}
 
-          <button className="p-1.5 bg-[#EAEAEA] rounded-lg">
+          <button
+            className="p-1.5 bg-[#EAEAEA] rounded-lg disabled:opacity-50"
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
             <ChevronRight size={16} className="text-[#080808]" />
           </button>
         </div>
       </div>
+
+      {/* Modals */}
+      <DeleteConfirmationModal
+        isOpen={showDeleteConfirmation}
+        onClose={() => setShowDeleteConfirmation(false)}
+        onConfirm={handleConfirmDelete}
+        selectedCount={selectedFeedback ? 1 : 0}
+      />
+
+      <DeleteModal
+        isOpen={showDeleteSuccess}
+        onClose={() => setShowDeleteSuccess(false)}
+      />
     </div>
   );
 };
