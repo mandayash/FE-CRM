@@ -4,6 +4,8 @@ import React, { createContext, useState, useEffect, useContext } from "react";
 import { User } from "@/types/user";
 import { setCookie, deleteCookie } from "cookies-next";
 import axios from "axios";
+import { encryptData, decryptData } from "@/utils/encryption";
+import { userService } from "@/services/userService";
 
 interface AuthContextType {
   user: User | null;
@@ -26,23 +28,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Check if user is logged in when the app loads
   useEffect(() => {
-    const token = localStorage.getItem("admin_token");
-    const userData = localStorage.getItem("user_data");
-
-    if (token && userData) {
+    const fetchUserData = async () => {
       try {
-        setUser(JSON.parse(userData));
-      } catch (e) {
-        console.error("Error parsing user data:", e);
-        localStorage.removeItem("admin_token");
-        localStorage.removeItem("user_data");
+        const userData = await userService.getProfile();
+        setUser(userData);
+        setIsAuthenticated(true);
+      } catch {
+        setUser(null);
+        setIsAuthenticated(false);
+      } finally {
+        setLoading(false);
       }
-    }
+    };
 
-    setLoading(false);
+    fetchUserData();
   }, []);
 
   // Login function - stores token and user data
@@ -63,7 +66,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       });
 
       // Tetap simpan user data di localStorage untuk referensi client-side
-      localStorage.setItem("user_data", JSON.stringify(response.data.user));
+      const encryptedUserData = encryptData(response.data.user);
+      localStorage.setItem("user_data", encryptedUserData);
 
       // Update state
       setUser(response.data.user);
