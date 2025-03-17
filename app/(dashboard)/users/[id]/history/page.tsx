@@ -1,8 +1,10 @@
-// app/users/[id]/history/page.tsx
-'use client'
-
-import { UserFeedbackHistory } from "@/components/users/history/UserFeedbackHistory"
+"use client";
+import { useParams } from "next/navigation";
+import { UserFeedbackHistory } from "@/components/users/history/UserFeedbackHistory";
 
 export default function UserHistoryPage() {
-  return <UserFeedbackHistory />
+  const params = useParams();
+  const userId = params.id as string;
+
+  return <UserFeedbackHistory userId={userId} />;
 }

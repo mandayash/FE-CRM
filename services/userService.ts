@@ -1,24 +1,84 @@
+// services/userService.ts
 import apiClient from "@/lib/api";
-import { Customer, User } from "@/types/user";
+
+export interface User {
+  id: number;
+  email: string;
+  name: string;
+  role: string;
+  created_at: string;
+  updated_at: string;
+  points?: number;
+}
+
+export interface UserListResponse {
+  users: User[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface UserPointsInfo {
+  user_id: number;
+  total: number;
+  level: string;
+  next_level: string;
+  to_next: number;
+}
 
 export const userService = {
+  // Get a specific user by ID
+  getUserById: async (userId: number): Promise<User> => {
+    try {
+      const response = await apiClient.get(`/users/${userId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching user with ID ${userId}:`, error);
+      throw error;
+    }
+  },
+
+  // Get all customers with pagination
+  getAllCustomers: async (page = 1, limit = 10): Promise<UserListResponse> => {
+    try {
+      const response = await apiClient.get(
+        `/users/customer?page=${page}&limit=${limit}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching customers:", error);
+      throw error;
+    }
+  },
+
+  // Get customer points information
+  getCustomerPoints: async (userId: number): Promise<UserPointsInfo> => {
+    try {
+      const response = await apiClient.get(`/users/customer/${userId}/points`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching points for user ${userId}:`, error);
+      throw error;
+    }
+  },
+
+  // Get current user profile (for auth context)
   getProfile: async (): Promise<User> => {
-    const response = await apiClient.get("/users/profile");
-    return response.data;
-  },
+    try {
+      // Get the user ID from token or localStorage
+      const userData = localStorage.getItem("user_data");
+      if (!userData) throw new Error("No user data found");
 
-  updateProfile: async (data: Partial<User>): Promise<User> => {
-    const response = await apiClient.put("/users/profile", data);
-    return response.data;
-  },
+      const user = JSON.parse(userData);
+      const userId = user.id;
 
-  getAllCustomers: async (): Promise<Customer[]> => {
-    const response = await apiClient.get("/users/customer");
-    return response.data;
-  },
+      if (!userId) throw new Error("No user ID found");
 
-  getCustomerPoint: async (userId: number): Promise<{ points: number }> => {
-    const response = await apiClient.get(`/users/customer/${userId}/points`);
-    return response.data;
+      const response = await apiClient.get(`/users/${userId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      throw error;
+    }
   },
 };

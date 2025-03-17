@@ -4,7 +4,6 @@
 
 import { useEffect, useState } from "react";
 import { ArrowLeft, Download, Maximize2, Minimize2 } from "lucide-react";
-import Image from "next/image";
 import { useRouter, useParams } from "next/navigation";
 import { feedbackService } from "@/services/feedbackService";
 import DOMPurify from "isomorphic-dompurify";
