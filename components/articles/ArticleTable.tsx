@@ -1,68 +1,58 @@
-'use client';
+"use client";
 
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Article, articleService } from "@/services/articleService";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Pencil, Trash, FileText } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+  Pencil,
+  Trash,
+  FileText,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
-interface Article {
-  id: string;
-  date: string;
-  title: string;
-  content: string;
-  image: string;
-  status: 'Draft' | 'Terkirim' | 'Gagal';
-}
-
-const articles: Article[] = [
-  {
-    id: 'AR-1245',
-    date: '2028-02-27 04:28:48',
-    title: 'Sed ut perspiciatis unde omnis iste',
-    content: 'Lorem ipsum dolor sit amet, ipsum das consectetur adipiscing elit sed...',
-    image: 'DSC21012.JPG',
-    status: 'Draft'
-  },
-  {
-    id: 'AR-1246',
-    date: '2028-02-27 04:28:48',
-    title: 'Sed ut perspiciatis unde omnis iste',
-    content: 'Lorem ipsum dolor sit amet, ipsum das consectetur adipiscing elit sed...',
-    image: 'DSC21012.JPG',
-    status: 'Terkirim'
-  },
-  {
-    id: 'AR-1247',
-    date: '2028-02-27 04:28:48',
-    title: 'Sed ut perspiciatis unde omnis iste',
-    content: 'Lorem ipsum dolor sit amet, ipsum das consectetur adipiscing elit sed...',
-    image: 'DSC21012.JPG',
-    status: 'Gagal'
-  },
-];
-
-const StatusBadge = ({ status }: { status: Article['status'] }) => {
-  const styles = {
-    'Draft': 'bg-[#4B5563] text-[#FFFFFF]',
-    'Terkirim': 'bg-[#EEFBD1] text-[#1F5305]',
-    'Gagal': 'bg-[#FCE6CF] text-[#CF0000]'
-  }[status];
-
-  return (
-    <span className={`px-2 py-1 rounded text-xs ${styles}`}>
-      {status}
-    </span>
-  );
-};
-
-export default function ArticleTable() {
+export default function ArticleTable({
+  articles,
+  visibleColumns,
+  pagination,
+  onPageChange,
+}: {
+  articles: Article[];
+  visibleColumns: ColumnVisibility;
+  pagination: { page: number; limit: number; total: number };
+  onPageChange: (page: number) => void;
+}) {
   const router = useRouter();
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [articleToDelete, setArticleToDelete] = useState<number | null>(null);
+
+  const totalPages = Math.ceil(pagination.total / pagination.limit);
+
+  // Fungsi untuk menghapus artikel dengan konfirmasi
+  const handleDeleteArticle = async (articleId: number) => {
+    try {
+      const isConfirmed = window.confirm(
+        "Apakah Anda yakin ingin menghapus artikel ini? Tindakan ini tidak dapat dibatalkan."
+      );
+      if (!isConfirmed) return;
+
+      console.log("Deleting article with ID:", articleId);
+      await articleService.deleteArticle(articleId);
+      setArticleToDelete(articleId);
+      setShowSuccessDialog(true);
+    } catch (error) {
+      console.error(`Error deleting article with ID ${articleId}:`, error);
+      alert("Gagal menghapus artikel. Silakan coba lagi.");
+    }
+  };
 
   return (
     <div className="rounded-lg border overflow-hidden">
@@ -70,63 +60,127 @@ export default function ArticleTable() {
         <table className="w-full min-w-[1000px]">
           <thead className="bg-gray-50">
             <tr>
-              <th className="w-4 p-4 text-left">
-                <input type="checkbox" className="rounded" />
-              </th>
-              <th className="p-4 text-left text-sm font-medium">Artikel Id</th>
-              <th className="p-4 text-left text-sm font-medium">Tanggal Artikel</th>
-              <th className="p-4 text-left text-sm font-medium">Judul Artikel</th>
-              <th className="p-4 text-left text-sm font-medium">Isi Artikel</th>
-              <th className="p-4 text-left text-sm font-medium">Gambar Artikel</th>
-              <th className="p-4 text-left text-sm font-medium">Status</th>
-              <th className="p-4 text-right text-sm font-medium">Aksi</th>
+              {visibleColumns.id && (
+                <th className="p-4 text-left text-sm font-medium">ID</th>
+              )}
+              {visibleColumns.date && (
+                <th className="p-4 text-left text-sm font-medium">
+                  Tanggal Artikel
+                </th>
+              )}
+              {visibleColumns.title && (
+                <th className="p-4 text-left text-sm font-medium">
+                  Judul Artikel
+                </th>
+              )}
+              {visibleColumns.content && (
+                <th className="p-4 text-left text-sm font-medium">
+                  Isi Artikel
+                </th>
+              )}
+              {visibleColumns.actions && (
+                <th className="p-4 text-mid text-sm font-medium">Aksi</th>
+              )}
             </tr>
           </thead>
           <tbody>
             {articles.map((article) => (
-              <TableRow key={article.id} className="hover:bg-gray-50">
-                <td className="p-4">
-                  <input type="checkbox" className="rounded" />
-                </td>
-                <td className="p-4 text-sm font-medium">{article.id}</td>
-                <td className="p-4 text-sm whitespace-nowrap">{article.date}</td>
-                <td className="p-4 text-sm max-w-[200px] truncate">{article.title}</td>
-                <td className="p-4 text-sm max-w-[300px] truncate">{article.content}</td>
-                <td className="p-4 text-sm text-gray-500">{article.image}</td>
-                <td className="p-4">
-                  <StatusBadge status={article.status} />
-                </td>
-                <td className="p-4">
-                  <div className="flex justify-end gap-2">
-                    {article.status === 'Terkirim' ? (
+              <tr key={article.id} className="hover:bg-gray-50">
+                {visibleColumns.id && (
+                  <td className="p-4 text-sm font-medium">AR-{article.id}</td>
+                )}
+                {visibleColumns.date && (
+                  <td className="p-4 text-sm whitespace-nowrap">
+                    {new Date(article.created_at).toLocaleString("id-ID")}
+                  </td>
+                )}
+                {visibleColumns.title && (
+                  <td className="p-4 text-sm max-w-[200px] truncate">
+                    {article.title}
+                  </td>
+                )}
+                {visibleColumns.content && (
+                  <td className="p-4 text-sm max-w-[300px] truncate">
+                    {article.summary ||
+                      article.content.substring(0, 100) + "..."}
+                  </td>
+                )}
+                {visibleColumns.actions && (
+                  <td className="p-4">
+                    <div className="flex justify-center gap-2">
                       <button
-                        onClick={() => router.push(`/articles/${article.id}`)}  
+                        onClick={() => router.push(`/articles/${article.id}`)}
                         className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
                       >
                         <FileText className="w-4 h-4 text-gray-500" />
                       </button>
-                    ) : (
-                      <>
-                        <button
-                          onClick={() => router.push(`/articles/${article.id}/edit`)}
-                          className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
-                        >
-                          <Pencil className="w-4 h-4 text-gray-500" />
-                        </button>
-                        <button 
-                          className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
-                        >
-                          <Trash className="w-4 h-4 text-gray-500" />
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </td>
-              </TableRow>
+                      <button
+                        onClick={() =>
+                          router.push(`/articles/${article.id}/edit`)
+                        }
+                        className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                      >
+                        <Pencil className="w-4 h-4 text-gray-500" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteArticle(article.id)}
+                        className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                      >
+                        <Trash className="w-4 h-4 text-gray-500" />
+                      </button>
+                    </div>
+                  </td>
+                )}
+              </tr>
             ))}
           </tbody>
         </table>
       </div>
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-between items-center p-4 border-t">
+          <button
+            className="p-2 bg-gray-200 rounded-lg disabled:opacity-50"
+            onClick={() => onPageChange(pagination.page - 1)}
+            disabled={pagination.page === 1}
+          >
+            <ChevronLeft size={16} className="text-gray-700" />
+          </button>
+          <span className="text-sm text-gray-500">
+            Halaman {pagination.page} dari {totalPages}
+          </span>
+          <button
+            className="p-2 bg-gray-200 rounded-lg disabled:opacity-50"
+            onClick={() => onPageChange(pagination.page + 1)}
+            disabled={pagination.page === totalPages}
+          >
+            <ChevronRight size={16} className="text-gray-700" />
+          </button>
+        </div>
+      )}
+      {/* Dialog sukses setelah penghapusan */}
+      <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Artikel Berhasil Dihapus</DialogTitle>
+          </DialogHeader>
+          <p>
+            Artikel dengan ID {articleToDelete} telah berhasil dihapus dari
+            sistem.
+          </p>
+          <DialogFooter>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                setShowSuccessDialog(false);
+                router.refresh();
+              }}
+            >
+              Oke
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

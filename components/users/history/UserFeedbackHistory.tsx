@@ -453,6 +453,7 @@ const FeedbackTable = ({
   onSort,
   sortField,
 }) => {
+  const router = useRouter();
   const [viewedFeedbacks, setViewedFeedbacks] = useState<number[]>([]);
 
   // Load viewed feedbacks from localStorage
@@ -462,6 +463,30 @@ const FeedbackTable = ({
       setViewedFeedbacks(JSON.parse(storedViewed));
     }
   }, []);
+
+  // Fungsi untuk menandai feedback sebagai telah dilihat
+  const handleViewFeedback = (id) => {
+    if (!viewedFeedbacks.includes(id)) {
+      const newViewedFeedbacks = [...viewedFeedbacks, id];
+      setViewedFeedbacks(newViewedFeedbacks);
+      localStorage.setItem(
+        "viewed_feedbacks",
+        JSON.stringify(newViewedFeedbacks)
+      );
+    }
+  };
+
+  // Fungsi untuk menavigasi ke halaman detail feedback
+  const navigateToDetail = (feedback) => {
+    handleViewFeedback(feedback.id);
+    router.push(`/feedback/${feedback.id}`);
+  };
+
+  // Fungsi untuk menavigasi ke halaman reply feedback
+  const navigateToReply = (feedback) => {
+    handleViewFeedback(feedback.id);
+    router.push(`/feedback/${feedback.id}/reply`);
+  };
 
   // Fungsi untuk format tanggal
   const formatDate = (dateString) => {
@@ -681,12 +706,18 @@ const FeedbackTable = ({
                   <TableCell>
                     <div className="flex items-center gap-1.5">
                       {feedback.status === "RESPONDED" ? (
-                        <button className="p-1 hover:bg-gray-100 rounded">
+                        <button
+                          onClick={() => navigateToReply(feedback)}
+                          className="p-1 hover:bg-gray-100 rounded"
+                        >
                           <FileText size={18} className="text-gray-600" />
                         </button>
                       ) : (
                         <>
-                          <button className="p-1 hover:bg-gray-100 rounded">
+                          <button
+                            onClick={() => navigateToDetail(feedback)}
+                            className="p-1 hover:bg-gray-100 rounded"
+                          >
                             <Pencil size={18} className="text-gray-600" />
                           </button>
                         </>
