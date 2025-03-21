@@ -15,22 +15,22 @@ const DashboardPage = () => {
 
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-3">
           <UsersBarChart />
         </div>
-        <div>
+        {/* <div>
           <RatingStats />
-        </div>
+        </div> */}
       </div>
 
       {/* Bottom Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-3">
           <FeedbackData />
         </div>
-        <div>
+        {/* <div>
           <LevelStats />
-        </div>
+        </div> */}
       </div>
     </div>
   );

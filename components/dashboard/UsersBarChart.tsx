@@ -1,14 +1,66 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { userService } from "@/services/userService";
+import { User } from "@/services/userService";
+import dayjs from "dayjs";
+
+const monthNames = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "Mei",
+  "Jun",
+  "Jul",
+  "Ags",
+  "Sep",
+  "Okt",
+  "Nov",
+  "Des",
+];
 
 const UsersBarChart: React.FC = () => {
   const [isClient, setIsClient] = useState(false);
+  const [data, setData] = useState<any[]>([]);
+  const [year, setYear] = useState(new Date().getFullYear());
+  const [allUsers, setAllUsers] = useState<User[]>([]);
 
   useEffect(() => {
     setIsClient(true);
+    fetchUsers();
   }, []);
+
+  useEffect(() => {
+    if (allUsers.length > 0) {
+      generateChartData();
+    }
+  }, [year, allUsers]);
+
+  const fetchUsers = async () => {
+    try {
+      const response = await userService.getAllCustomers(1, 10000);
+      setAllUsers(response.users);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
+
+  const generateChartData = () => {
+    const monthlyCounts = Array(12).fill(0);
+    allUsers.forEach((user) => {
+      const createdAt = dayjs(user.created_at);
+      if (createdAt.year() === year) {
+        monthlyCounts[createdAt.month()]++;
+      }
+    });
+    const chartData = monthlyCounts.map((count, index) => ({
+      month: monthNames[index],
+      users: count,
+    }));
+    setData(chartData);
+  };
 
   const Chart = () => {
     const {
@@ -19,28 +71,13 @@ const UsersBarChart: React.FC = () => {
       CartesianGrid,
       Tooltip,
       ResponsiveContainer,
-    } = require('recharts');
-
-    const data = [
-      { month: 'Jan', users: 35000 },
-      { month: 'Feb', users: 29000 },
-      { month: 'Mar', users: 32000 },
-      { month: 'Apr', users: 37000 },
-      { month: 'Mei', users: 31000 },
-      { month: 'Jun', users: 39311 },
-      { month: 'Jul', users: 38000 },
-      { month: 'Ags', users: 32000 },
-      { month: 'Sep', users: 36000 },
-      { month: 'Okt', users: 34000 },
-      { month: 'Nov', users: 29000 },
-      { month: 'Des', users: 31000 },
-    ];
+    } = require("recharts");
 
     const CustomTooltip = ({ active, payload }: any) => {
       if (active && payload && payload.length) {
         return (
           <div className="bg-white p-3 border rounded-lg shadow-lg">
-            <p className="text-sm text-gray-600">{`${payload[0].payload.month} 2025`}</p>
+            <p className="text-sm text-gray-600">{`${payload[0].payload.month} ${year}`}</p>
             <p className="text-sm font-bold">
               {`${payload[0].value.toLocaleString()} Pengguna`}
             </p>
@@ -56,12 +93,7 @@ const UsersBarChart: React.FC = () => {
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={data}
-              margin={{ 
-                top: 10, 
-                right: 20, 
-                left: 0, 
-                bottom: 0 
-              }}
+              margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
               barSize={30}
             >
               <defs>
@@ -70,36 +102,27 @@ const UsersBarChart: React.FC = () => {
                   <stop offset="100%" stopColor="#FFB547" />
                 </linearGradient>
               </defs>
-              <CartesianGrid 
-                vertical={false} 
+              <CartesianGrid
+                vertical={false}
                 strokeDasharray="3 3"
                 stroke="#E4E4E4"
               />
-              <XAxis 
+              <XAxis
                 dataKey="month"
                 axisLine={false}
                 tickLine={false}
-                tick={{ 
-                  fill: '#666', 
-                  fontSize: 11,
-                  fontFamily: 'var(--sf-pro-display)'
-                }}
+                tick={{ fill: "#666", fontSize: 11 }}
                 dy={10}
               />
               <YAxis
                 axisLine={false}
                 tickLine={false}
-                tick={{ 
-                  fill: '#666', 
-                  fontSize: 11,
-                  fontFamily: 'var(--sf-pro-display)'
-                }}
-                tickFormatter={(value: number) => `${value/1000}K`}
+                tick={{ fill: "#666", fontSize: 11 }}
                 width={45}
               />
-              <Tooltip 
+              <Tooltip
                 content={<CustomTooltip />}
-                cursor={{ fill: 'rgba(0, 0, 0, 0.05)' }}
+                cursor={{ fill: "rgba(0, 0, 0, 0.05)" }}
               />
               <Bar
                 dataKey="users"
@@ -117,24 +140,39 @@ const UsersBarChart: React.FC = () => {
     <Card className="w-full h-full overflow-hidden">
       <CardHeader className="px-4 sm:px-6 pt-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-2">
-          <div className="min-w-0 w-full sm:w-auto"> 
+          <div className="min-w-0 w-full sm:w-auto">
             <CardTitle className="text-base sm:text-lg font-medium text-primary truncate">
               Total Pengguna Aplikasi
             </CardTitle>
-            <div className="mt-1 min-w-0"> 
-              <p className="text-xl sm:text-2xl lg:text-3xl font-bold truncate">1,121</p>
-              <p className="text-xs sm:text-sm text-gray-500 truncate">Total Pengguna</p>
+            <div className="mt-1 min-w-0">
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold truncate">
+                {allUsers.length}
+              </p>
+              <p className="text-xs sm:text-sm text-gray-500 truncate">
+                Total Pengguna
+              </p>
             </div>
           </div>
-          <select className="w-full sm:w-auto border rounded-lg px-3 py-2 text-xs sm:text-sm bg-white flex-shrink-0">
-            <option>Tahun Ini</option>
-            <option>2024</option>
-            <option>2023</option>
+          <select
+            value={year}
+            onChange={(e) => setYear(Number(e.target.value))}
+            className="w-full sm:w-auto border rounded-lg px-3 py-2 text-xs sm:text-sm bg-white flex-shrink-0"
+          >
+            {[...Array(5)].map((_, i) => {
+              const y = new Date().getFullYear() - i;
+              return (
+                <option key={y} value={y}>
+                  {y}
+                </option>
+              );
+            })}
           </select>
         </div>
       </CardHeader>
-      <CardContent className="flex-1 px-4 sm:px-6"> 
-        {isClient ? <Chart /> : (
+      <CardContent className="flex-1 px-4 sm:px-6">
+        {isClient ? (
+          <Chart />
+        ) : (
           <div className="w-full h-[300px] flex items-center justify-center">
             <p className="text-gray-500">Loading chart...</p>
           </div>

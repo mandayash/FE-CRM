@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
 interface LevelData {
   level: string;
@@ -13,26 +13,26 @@ interface LevelData {
 
 const LevelStats = () => {
   const totalPoin = 432932;
-  
+
   const levels: LevelData[] = [
     {
       level: "Silver Level",
       count: 311172,
       percentage: 72,
-      color: "#ADADAD"
+      color: "#ADADAD",
     },
     {
       level: "Gold Level",
       count: 77792,
       percentage: 18,
-      color: "#FFD23D"
+      color: "#FFD23D",
     },
     {
       level: "Platinum Level",
       count: 43429,
       percentage: 10,
-      color: "#B09FFF"
-    }
+      color: "#B09FFF",
+    },
   ];
 
   const LevelRow = ({ level, count, percentage }: LevelData) => {
@@ -48,22 +48,28 @@ const LevelStats = () => {
           return "";
       }
     };
-    
+
     return (
       <div className="flex items-center gap-4 min-w-[250px] sm:min-w-[300px]">
         <div className="flex items-center gap-3 flex-1">
           {/* Percentage badge with gradient background */}
-          <div 
+          <div
             className="px-2 sm:px-3 py-1 rounded-lg w-[40px] sm:w-[48px] text-center flex-shrink-0"
             style={{
-              backgroundImage: getGradientStyle(level)
+              backgroundImage: getGradientStyle(level),
             }}
           >
-            <span className="text-xs sm:text-sm font-bold text-text">{percentage}%</span>
+            <span className="text-xs sm:text-sm font-bold text-text">
+              {percentage}%
+            </span>
           </div>
-          <span className="text-xs sm:text-sm font-medium whitespace-nowrap">{level}</span>
+          <span className="text-xs sm:text-sm font-medium whitespace-nowrap">
+            {level}
+          </span>
         </div>
-        <span className="text-xs sm:text-sm font-bold whitespace-nowrap">{count.toLocaleString()}</span>
+        <span className="text-xs sm:text-sm font-bold whitespace-nowrap">
+          {count.toLocaleString()}
+        </span>
       </div>
     );
   };
@@ -105,7 +111,13 @@ const LevelStats = () => {
                   <stop offset="63.71%" stopColor="#EFD787" />
                   <stop offset="84.77%" stopColor="rgba(242, 186, 0, 0.47)" />
                 </linearGradient>
-                <linearGradient id="platinumGradient" x1="0" y1="0" x2="1" y2="0">
+                <linearGradient
+                  id="platinumGradient"
+                  x1="0"
+                  y1="0"
+                  x2="1"
+                  y2="0"
+                >
                   <stop offset="37.63%" stopColor="#B09FFF" />
                   <stop offset="41.94%" stopColor="#8C7BDB" />
                   <stop offset="52.54%" stopColor="#BEB0FF" />
@@ -126,9 +138,11 @@ const LevelStats = () => {
                 strokeWidth={3}
               >
                 {levels.map((entry, index) => (
-                  <Cell 
-                    key={`cell-${index}`} 
-                    fill={`url(#${entry.level.toLowerCase().split(' ')[0]}Gradient)`}
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={`url(#${
+                      entry.level.toLowerCase().split(" ")[0]
+                    }Gradient)`}
                   />
                 ))}
               </Pie>
@@ -136,7 +150,9 @@ const LevelStats = () => {
           </ResponsiveContainer>
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center w-full">
             <p className="text-[#303030] text-sm">Total Poin</p>
-            <p className="text-primary text-xl font-bold">{totalPoin.toLocaleString()}</p>
+            <p className="text-primary text-xl font-bold">
+              {totalPoin.toLocaleString()}
+            </p>
           </div>
         </div>
 

@@ -41,11 +41,11 @@ const Sidebar = () => {
       icon: <Gift className="w-5 h-5" />,
       path: "/reward",
     },
-    {
-      title: "Notifikasi",
-      icon: <Bell className="w-5 h-5" />,
-      path: "/notification",
-    },
+    // {
+    //   title: "Notifikasi",
+    //   icon: <Bell className="w-5 h-5" />,
+    //   path: "/notification",
+    // },
     {
       title: "Kelola Artikel",
       icon: <FileText className="w-5 h-5" />,
