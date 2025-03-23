@@ -4,14 +4,15 @@ import {
   DialogContent,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { AlertTriangle } from "lucide-react";
 import Image from "next/image";
 
-interface DeleteModalProps {
+interface ErrorEditModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const DeleteModal: React.FC<DeleteModalProps> = ({
+const ErrorEditModal: React.FC<ErrorEditModalProps> = ({
   isOpen,
   onClose
 }) => {
@@ -23,36 +24,40 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
           {/* Ilustrasi */}
           <div className="mb-6">
             <Image 
-              src="/images/success-feedback.png" 
-              alt="Sukses"
+              src="/images/error-feedback.png" 
+              alt="Error"
               width={150} 
               height={150}
               className="w-auto h-auto"
             />
           </div>
           
-          {/* Success Text */}
+          {/* Error Text */}
           <div className="mb-6 text-center">
-            <h2 className="text-[#CF0000] text-xl font-bold mb-2">
-              Data feedback berhasil dihapus!
-            </h2>
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <AlertTriangle className="text-[#CF0000] w-6 h-6" />
+              <h2 className="text-[#CF0000] text-xl font-bold">
+                Data Hadiah gagal diedit!
+              </h2>
+            </div>
             <p className="text-[#303030] text-sm">
-              Data feedback pengguna berhasil dihapus.
+              Mohon periksa koneksi internet Anda dan coba lagi.
             </p>
           </div>
           
           {/* Action Button */}
-          <Button 
-            variant="outline"
-            className="px-6 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 border-none text-[#303030] text-sm font-medium min-w-[120px]"
-            onClick={onClose}
-          >
-            Kembali
-          </Button>
+          <div className="flex w-full">
+            <Button 
+              className="flex-1 px-6 py-2 rounded-lg bg-[#CF0000] hover:bg-[#b50000] text-white text-sm font-medium"
+              onClick={onClose}
+            >
+              Coba lagi
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
   );
 };
 
-export default DeleteModal;
+export default ErrorEditModal;

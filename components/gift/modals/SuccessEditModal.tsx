@@ -6,18 +6,14 @@ import {
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
-interface DeleteConfirmationModalProps {
+interface SuccessEditModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
-  selectedCount?: number; // Untuk menampilkan jumlah data yang akan dihapus
 }
 
-const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
+const SuccessEditModal: React.FC<SuccessEditModalProps> = ({
   isOpen,
-  onClose,
-  onConfirm,
-  selectedCount = 1
+  onClose
 }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -27,38 +23,32 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
           {/* Ilustrasi */}
           <div className="mb-6">
             <Image 
-              src="/images/alert-illustration.png" 
-              alt="Konfirmasi"
+              src="/images/success-feedback.png" 
+              alt="Success"
               width={150} 
               height={150}
               className="w-auto h-auto"
             />
           </div>
           
-          {/* Confirm Text */}
+          {/* Success Text */}
           <div className="mb-6 text-center">
             <h2 className="text-[#CF0000] text-xl font-bold mb-2">
-              Anda yakin ingin menghapus {selectedCount} data feedback?
+              Data Hadiah berhasil diedit!
             </h2>
             <p className="text-[#303030] text-sm">
-              Jika Anda menghapus data feedback pengguna, data akan terhapus dan Anda tidak dapat memberikan balasan terkait feedback!
+              Data Hadiah berhasil diedit.
             </p>
           </div>
           
-          {/* Action Buttons */}
-          <div className="flex gap-3 w-full">
+          {/* Action Button */}
+          <div className="flex w-full">
             <Button 
               variant="outline"
               className="flex-1 px-6 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 border-none text-[#303030] text-sm font-medium"
               onClick={onClose}
             >
               Kembali
-            </Button>
-            <Button 
-              className="flex-1 px-6 py-2 rounded-lg bg-[#CF0000] hover:bg-red-700 text-white text-sm font-medium"
-              onClick={onConfirm}
-            >
-              Ya, Hapus
             </Button>
           </div>
         </div>
@@ -67,4 +57,4 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
   );
 };
 
-export default DeleteConfirmationModal;
+export default SuccessEditModal;

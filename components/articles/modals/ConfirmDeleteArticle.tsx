@@ -6,14 +6,14 @@ import {
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
-interface DeleteConfirmationModalProps {
+interface ConfirmDeleteArticleProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
   selectedCount?: number; // Untuk menampilkan jumlah data yang akan dihapus
 }
 
-const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
+const ConfirmDeleteArticle: React.FC<ConfirmDeleteArticleProps> = ({
   isOpen,
   onClose,
   onConfirm,
@@ -38,10 +38,10 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
           {/* Confirm Text */}
           <div className="mb-6 text-center">
             <h2 className="text-[#CF0000] text-xl font-bold mb-2">
-              Anda yakin ingin menghapus {selectedCount} data feedback?
+              Anda yakin ingin menghapus {selectedCount} artikel?
             </h2>
             <p className="text-[#303030] text-sm">
-              Jika Anda menghapus data feedback pengguna, data akan terhapus dan Anda tidak dapat memberikan balasan terkait feedback!
+              Jika Anda menghapus artikel, data akan terhapus secara permanen dalam sistem dan aplikasi!
             </p>
           </div>
           
@@ -67,4 +67,4 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
   );
 };
 
-export default DeleteConfirmationModal;
+export default ConfirmDeleteArticle;

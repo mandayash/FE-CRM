@@ -4,14 +4,15 @@ import {
   DialogContent,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { AlertTriangle } from "lucide-react";
 import Image from "next/image";
 
-interface DeleteModalProps {
+interface ErrorDeleteArticleProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const DeleteModal: React.FC<DeleteModalProps> = ({
+const ErrorDeleteArticle: React.FC<ErrorDeleteArticleProps> = ({
   isOpen,
   onClose
 }) => {
@@ -20,34 +21,33 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       <DialogContent className="max-w-[400px] p-0 rounded-2xl border-0 shadow-lg bg-white overflow-hidden">
         {/* Konten Modal */}
         <div className="flex flex-col items-center p-6 text-center">
-          {/* Ilustrasi */}
+          {/* Ilustrasi Petugas */}
           <div className="mb-6">
             <Image 
-              src="/images/success-feedback.png" 
-              alt="Sukses"
+              src="/images/error-feedback.png" 
+              alt="Error"
               width={150} 
               height={150}
               className="w-auto h-auto"
             />
           </div>
           
-          {/* Success Text */}
+          {/* Error Text */}
           <div className="mb-6 text-center">
             <h2 className="text-[#CF0000] text-xl font-bold mb-2">
-              Data feedback berhasil dihapus!
+              Artikel gagal dihapus!
             </h2>
             <p className="text-[#303030] text-sm">
-              Data feedback pengguna berhasil dihapus.
+              Mohon periksa koneksi internet Anda dan coba lagi.
             </p>
           </div>
           
           {/* Action Button */}
           <Button 
-            variant="outline"
-            className="px-6 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 border-none text-[#303030] text-sm font-medium min-w-[120px]"
+            className="px-6 py-2 rounded-lg bg-[#CF0000] hover:bg-red-700 text-white text-sm font-medium min-w-[120px]"
             onClick={onClose}
           >
-            Kembali
+            Kirim ulang Artikel
           </Button>
         </div>
       </DialogContent>
@@ -55,4 +55,4 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   );
 };
 
-export default DeleteModal;
+export default ErrorDeleteArticle;

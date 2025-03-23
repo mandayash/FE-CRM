@@ -4,20 +4,21 @@ import {
   DialogContent,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { AlertTriangle } from "lucide-react";
 import Image from "next/image";
 
-interface DeleteConfirmationModalProps {
+interface DeleteGiftModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  selectedCount?: number; // Untuk menampilkan jumlah data yang akan dihapus
+  count: number; 
 }
 
-const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
-  isOpen,
-  onClose,
+const DeleteGiftModal: React.FC<DeleteGiftModalProps> = ({ 
+  isOpen, 
+  onClose, 
   onConfirm,
-  selectedCount = 1
+  count 
 }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -28,20 +29,22 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
           <div className="mb-6">
             <Image 
               src="/images/alert-illustration.png" 
-              alt="Konfirmasi"
+              alt="Alert" 
               width={150} 
               height={150}
               className="w-auto h-auto"
             />
           </div>
           
-          {/* Confirm Text */}
+          {/* Warning Text */}
           <div className="mb-6 text-center">
-            <h2 className="text-[#CF0000] text-xl font-bold mb-2">
-              Anda yakin ingin menghapus {selectedCount} data feedback?
-            </h2>
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <h2 className="text-[#CF0000] text-xl font-bold">
+                Anda yakin ingin menghapus {count} data hadiah?
+              </h2>
+            </div>
             <p className="text-[#303030] text-sm">
-              Jika Anda menghapus data feedback pengguna, data akan terhapus dan Anda tidak dapat memberikan balasan terkait feedback!
+              Jika Anda menghapus data hadiah, data akan terhapus secara permanen.
             </p>
           </div>
           
@@ -67,4 +70,4 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
   );
 };
 
-export default DeleteConfirmationModal;
+export default DeleteGiftModal;

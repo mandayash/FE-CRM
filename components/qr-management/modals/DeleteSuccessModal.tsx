@@ -6,25 +6,23 @@ import {
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
-interface DeleteModalProps {
+interface DeleteSuccessModalProps {
   isOpen: boolean;
   onClose: () => void;
+  count: number; // Jumlah QR yang berhasil dihapus
 }
 
-const DeleteModal: React.FC<DeleteModalProps> = ({
-  isOpen,
-  onClose
-}) => {
+const DeleteSuccessModal = ({ isOpen, onClose, count }: DeleteSuccessModalProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[400px] p-0 rounded-2xl border-0 shadow-lg bg-white overflow-hidden">
         {/* Konten Modal */}
         <div className="flex flex-col items-center p-6 text-center">
-          {/* Ilustrasi */}
+          {/* Ilustrasi Petugas */}
           <div className="mb-6">
             <Image 
               src="/images/success-feedback.png" 
-              alt="Sukses"
+              alt="Petugas" 
               width={150} 
               height={150}
               className="w-auto h-auto"
@@ -34,10 +32,10 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
           {/* Success Text */}
           <div className="mb-6 text-center">
             <h2 className="text-[#CF0000] text-xl font-bold mb-2">
-              Data feedback berhasil dihapus!
+              {count} data QR berhasil dihapus!
             </h2>
             <p className="text-[#303030] text-sm">
-              Data feedback pengguna berhasil dihapus.
+              Data QR berhasil dihapus.
             </p>
           </div>
           
@@ -55,4 +53,4 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   );
 };
 
-export default DeleteModal;
+export default DeleteSuccessModal;

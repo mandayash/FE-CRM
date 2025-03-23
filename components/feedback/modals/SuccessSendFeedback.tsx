@@ -6,12 +6,12 @@ import {
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
-interface DeleteModalProps {
+interface SuccessSendFeedbackProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const DeleteModal: React.FC<DeleteModalProps> = ({
+const SuccessSendFeedback: React.FC<SuccessSendFeedbackProps> = ({
   isOpen,
   onClose
 }) => {
@@ -20,7 +20,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       <DialogContent className="max-w-[400px] p-0 rounded-2xl border-0 shadow-lg bg-white overflow-hidden">
         {/* Konten Modal */}
         <div className="flex flex-col items-center p-6 text-center">
-          {/* Ilustrasi */}
+          {/* Ilustrasi Petugas */}
           <div className="mb-6">
             <Image 
               src="/images/success-feedback.png" 
@@ -34,10 +34,10 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
           {/* Success Text */}
           <div className="mb-6 text-center">
             <h2 className="text-[#CF0000] text-xl font-bold mb-2">
-              Data feedback berhasil dihapus!
+              Balasan feedback berhasil dikirim!
             </h2>
             <p className="text-[#303030] text-sm">
-              Data feedback pengguna berhasil dihapus.
+              Terima kasih, feedback anda sudah dikirim.
             </p>
           </div>
           
@@ -55,4 +55,4 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   );
 };
 
-export default DeleteModal;
+export default SuccessSendFeedback;

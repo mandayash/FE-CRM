@@ -4,44 +4,45 @@ import {
   DialogContent,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { AlertTriangle } from "lucide-react";
 import Image from "next/image";
 
-interface DeleteConfirmationModalProps {
+interface ConfirmEditModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  selectedCount?: number; // Untuk menampilkan jumlah data yang akan dihapus
 }
 
-const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
+const ConfirmEditModal: React.FC<ConfirmEditModalProps> = ({
   isOpen,
   onClose,
-  onConfirm,
-  selectedCount = 1
+  onConfirm
 }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[400px] p-0 rounded-2xl border-0 shadow-lg bg-white overflow-hidden">
         {/* Konten Modal */}
         <div className="flex flex-col items-center p-6 text-center">
-          {/* Ilustrasi */}
+          {/* Ilustrasi Petugas */}
           <div className="mb-6">
             <Image 
               src="/images/alert-illustration.png" 
-              alt="Konfirmasi"
+              alt="Petugas"
               width={150} 
               height={150}
               className="w-auto h-auto"
             />
           </div>
           
-          {/* Confirm Text */}
+          {/* Warning Text */}
           <div className="mb-6 text-center">
-            <h2 className="text-[#CF0000] text-xl font-bold mb-2">
-              Anda yakin ingin menghapus {selectedCount} data feedback?
-            </h2>
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <h2 className="text-[#CF0000] text-xl font-bold">
+                Anda yakin ingin mengubah data Hadiah?
+              </h2>
+            </div>
             <p className="text-[#303030] text-sm">
-              Jika Anda menghapus data feedback pengguna, data akan terhapus dan Anda tidak dapat memberikan balasan terkait feedback!
+              Pastikan data hadiah yang anda masukan sudah sesuai.
             </p>
           </div>
           
@@ -58,7 +59,7 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
               className="flex-1 px-6 py-2 rounded-lg bg-[#CF0000] hover:bg-red-700 text-white text-sm font-medium"
               onClick={onConfirm}
             >
-              Ya, Hapus
+              Ya, Edit
             </Button>
           </div>
         </div>
@@ -67,4 +68,4 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
   );
 };
 
-export default DeleteConfirmationModal;
+export default ConfirmEditModal;

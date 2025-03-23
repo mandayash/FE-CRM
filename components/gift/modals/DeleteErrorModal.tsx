@@ -4,20 +4,21 @@ import {
   DialogContent,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { AlertTriangle } from "lucide-react";
 import Image from "next/image";
 
-interface DeleteConfirmationModalProps {
+interface DeleteErrorModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
-  selectedCount?: number; // Untuk menampilkan jumlah data yang akan dihapus
+  onRetry: () => void;
+  count: number;
 }
 
-const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
+const DeleteErrorModal: React.FC<DeleteErrorModalProps> = ({
   isOpen,
   onClose,
-  onConfirm,
-  selectedCount = 1
+  onRetry,
+  count
 }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -27,38 +28,34 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
           {/* Ilustrasi */}
           <div className="mb-6">
             <Image 
-              src="/images/alert-illustration.png" 
-              alt="Konfirmasi"
+              src="/images/error-feedback.png" 
+              alt="Error"
               width={150} 
               height={150}
               className="w-auto h-auto"
             />
           </div>
           
-          {/* Confirm Text */}
+          {/* Error Text */}
           <div className="mb-6 text-center">
-            <h2 className="text-[#CF0000] text-xl font-bold mb-2">
-              Anda yakin ingin menghapus {selectedCount} data feedback?
-            </h2>
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <AlertTriangle className="text-[#CF0000] w-6 h-6" />
+              <h2 className="text-[#CF0000] text-xl font-bold">
+                {count} data hadiah gagal dihapus!
+              </h2>
+            </div>
             <p className="text-[#303030] text-sm">
-              Jika Anda menghapus data feedback pengguna, data akan terhapus dan Anda tidak dapat memberikan balasan terkait feedback!
+              Mohon periksa koneksi internet Anda dan coba lagi.
             </p>
           </div>
           
-          {/* Action Buttons */}
-          <div className="flex gap-3 w-full">
-            <Button 
-              variant="outline"
-              className="flex-1 px-6 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 border-none text-[#303030] text-sm font-medium"
-              onClick={onClose}
-            >
-              Kembali
-            </Button>
+          {/* Action Button */}
+          <div className="flex w-full">
             <Button 
               className="flex-1 px-6 py-2 rounded-lg bg-[#CF0000] hover:bg-red-700 text-white text-sm font-medium"
-              onClick={onConfirm}
+              onClick={onRetry}
             >
-              Ya, Hapus
+              Coba lagi
             </Button>
           </div>
         </div>
@@ -67,4 +64,4 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
   );
 };
 
-export default DeleteConfirmationModal;
+export default DeleteErrorModal;

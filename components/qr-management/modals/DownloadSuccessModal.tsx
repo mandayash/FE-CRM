@@ -6,15 +6,12 @@ import {
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
-interface DeleteModalProps {
+interface DownloadSuccessModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const DeleteModal: React.FC<DeleteModalProps> = ({
-  isOpen,
-  onClose
-}) => {
+const DownloadSuccessModal = ({ isOpen, onClose }: DownloadSuccessModalProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[400px] p-0 rounded-2xl border-0 shadow-lg bg-white overflow-hidden">
@@ -24,7 +21,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
           <div className="mb-6">
             <Image 
               src="/images/success-feedback.png" 
-              alt="Sukses"
+              alt="Sukses" 
               width={150} 
               height={150}
               className="w-auto h-auto"
@@ -34,10 +31,10 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
           {/* Success Text */}
           <div className="mb-6 text-center">
             <h2 className="text-[#CF0000] text-xl font-bold mb-2">
-              Data feedback berhasil dihapus!
+              QR berhasil diunduh!
             </h2>
             <p className="text-[#303030] text-sm">
-              Data feedback pengguna berhasil dihapus.
+              Data QR berhasil diunduh.
             </p>
           </div>
           
@@ -55,4 +52,4 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   );
 };
 
-export default DeleteModal;
+export default DownloadSuccessModal;
