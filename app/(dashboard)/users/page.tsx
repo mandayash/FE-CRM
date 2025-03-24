@@ -95,10 +95,10 @@ export default function UsersPage() {
     <div className="space-y-6">
       {/* Stats and Level Summary */}
       <div className="grid grid-cols-1 lg:grid-cols-7 gap-6">
-        <div className="lg:col-span-3">
+        <div className="lg:col-span-2">
           <DashboardStats />
         </div>
-        <div className="lg:col-span-4">
+        <div className="lg:col-span-5">
           <LevelSummaryCard />
         </div>
       </div>
