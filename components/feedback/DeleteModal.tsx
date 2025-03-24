@@ -1,43 +1,54 @@
-import Image from 'next/image';
+import React from 'react';
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 interface DeleteModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const DeleteModal = ({ isOpen, onClose }: DeleteModalProps) => {
+const DeleteModal: React.FC<DeleteModalProps> = ({
+  isOpen,
+  onClose
+}) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md rounded-2xl">
-        <div className="flex flex-col items-center text-center p-6">
-          <Image
-            src="/images/success-feedback.png" 
-            alt="Success"
-            width={200}
-            height={200}
-            className="mb-6"
-          />
-          <DialogHeader className="space-y-2">
-            <DialogTitle className="text-[#CF0000] text-xl">
+      <DialogContent className="max-w-[400px] p-0 rounded-2xl border-0 shadow-lg bg-white overflow-hidden">
+        {/* Konten Modal */}
+        <div className="flex flex-col items-center p-6 text-center">
+          {/* Ilustrasi */}
+          <div className="mb-6">
+            <Image 
+              src="/images/success-feedback.png" 
+              alt="Sukses"
+              width={150} 
+              height={150}
+              className="w-auto h-auto"
+            />
+          </div>
+          
+          {/* Success Text */}
+          <div className="mb-6 text-center">
+            <h2 className="text-[#CF0000] text-xl font-bold mb-2">
               Data feedback berhasil dihapus!
-            </DialogTitle>
-            <DialogDescription className="text-[#303030] text-base">
+            </h2>
+            <p className="text-[#303030] text-sm">
               Data feedback pengguna berhasil dihapus.
-            </DialogDescription>
-          </DialogHeader>
-          <button
+            </p>
+          </div>
+          
+          {/* Action Button */}
+          <Button 
+            variant="outline"
+            className="px-6 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 border-none text-[#303030] text-sm font-medium min-w-[120px]"
             onClick={onClose}
-            className="mt-6 px-6 py-2 bg-[#EAEAEA] hover:bg-gray-200 text-[#303030] rounded-lg text-sm font-medium transition-colors"
           >
             Kembali
-          </button>
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

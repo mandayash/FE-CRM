@@ -1,27 +1,30 @@
 "use client";
 
-import React, { useState, Fragment } from "react";
-import { useEditor, EditorContent } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import SuccessModal from "@/components/feedback/SuccessModal";
+import React, { useState, Fragment } from 'react';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import { useRouter } from 'next/navigation';
+import SuccessSendFeedback from "@/components/feedback/modals/SuccessSendFeedback";
 
-import {
-  Bold,
-  Italic,
-  Link2,
-  List,
+import { 
+  Bold, 
+  Italic, 
+  Link2, 
+  List, 
   ListOrdered,
   Quote,
   Undo2,
   Redo2,
   ChevronDown,
   IndentIcon,
-  OutdentIcon,
-} from "lucide-react";
+  ArrowLeft,
+  OutdentIcon
+} from 'lucide-react';
 
 interface ReplyFormProps {
-  onSubmit?: (data: { title: string; content: string }) => void;
-  onSave?: (data: { title: string; content: string }) => void;
+  onSubmit?: (data: { title?: string; content: string }) => void;
+  onSave?: (data: { title?: string; content: string }) => void;
+  showTitleInput?: boolean;
 }
 
 // Komponen MenuBar terpisah untuk toolbar
@@ -34,7 +37,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
     <div className="flex flex-wrap items-center gap-1 p-1 mb-2 border rounded-lg bg-white overflow-x-auto">
       {/* Paragraph Dropdown */}
       <div className="relative">
-        <button className="flex items-center gap-1 p-1.5 sm:p-2 hover:bg-gray-100 rounded">
+        <button className="flex items-center gap-1 p-1.5 sm:p-2 hover:bg-gray-100 bg-white rounded">
           <span className="text-xs sm:text-sm">Paragraph</span>
           <ChevronDown size={14} className="sm:w-4 sm:h-4" />
         </button>
@@ -140,9 +143,10 @@ const MenuBar = ({ editor }: { editor: any }) => {
   );
 };
 
-const ReplyForm = ({ onSubmit, onSave }: ReplyFormProps) => {
+const ReplyForm = ({ onSubmit, onSave, showTitleInput = false }: ReplyFormProps) => {
   const [title, setTitle] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const router = useRouter();
 
   const editor = useEditor({
     extensions: [StarterKit],
@@ -157,25 +161,25 @@ const ReplyForm = ({ onSubmit, onSave }: ReplyFormProps) => {
   const handleSubmit = () => {
     if (onSubmit) {
       onSubmit({
-        title,
-        content: editor?.getHTML() || "",
+        title: showTitleInput ? title : undefined,
+        content: editor?.getHTML() || ''
       });
-      setShowSuccessModal(true);
+      setShowSuccessModal(true); 
     }
   };
 
   const handleSave = () => {
     if (onSave) {
       onSave({
-        title,
-        content: editor?.getHTML() || "",
+        title: showTitleInput ? title : undefined,
+        content: editor?.getHTML() || ''
       });
     }
   };
 
   return (
     <>
-      <div className="flex flex-col p-4 sm:p-6 gap-4 sm:gap-5 rounded-2xl border border-[#C0C0C0] shadow-[0px_6px_14px_0px_rgba(0,0,0,0.05)]">
+      <div className="bg-white flex flex-col p-4 sm:p-6 gap-4 sm:gap-5 rounded-2xl border border-[#C0C0C0] shadow-[0px_6px_14px_0px_rgba(0,0,0,0.05)]">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -228,7 +232,7 @@ const ReplyForm = ({ onSubmit, onSave }: ReplyFormProps) => {
         </div>
       </div>
 
-      <SuccessModal
+      <SuccessSendFeedback
         isOpen={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
       />

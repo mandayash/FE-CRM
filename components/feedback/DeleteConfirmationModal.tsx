@@ -1,12 +1,10 @@
-// components/feedback/DeleteConfirmationModal.tsx
-import Image from 'next/image';
+import React from 'react';
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 interface DeleteConfirmationModalProps {
   isOpen: boolean;
@@ -15,47 +13,53 @@ interface DeleteConfirmationModalProps {
   selectedCount?: number; // Untuk menampilkan jumlah data yang akan dihapus
 }
 
-const DeleteConfirmationModal = ({ 
-  isOpen, 
-  onClose, 
+const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
+  isOpen,
+  onClose,
   onConfirm,
-  selectedCount = 1 
-}: DeleteConfirmationModalProps) => {
+  selectedCount = 1
+}) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md rounded-2xl">
-        <div className="flex flex-col items-center text-center p-6">
-          <Image
-            src="/images/alert-illustration.png" 
-            alt="Warning"
-            width={200}
-            height={200}
-            className="mb-6"
-          />
-          <DialogHeader className="space-y-4">
-            <div className="flex items-center gap-2 justify-center">
-              <span className="text-red-600 text-2xl">⚠️</span>
-              <DialogTitle className="text-[#CF0000] text-xl">
-                Anda yakin ingin menghapus {selectedCount} data feedback?
-              </DialogTitle>
-            </div>
-            <DialogDescription className="text-[#303030] text-base">
+      <DialogContent className="max-w-[400px] p-0 rounded-2xl border-0 shadow-lg bg-white overflow-hidden">
+        {/* Konten Modal */}
+        <div className="flex flex-col items-center p-6 text-center">
+          {/* Ilustrasi */}
+          <div className="mb-6">
+            <Image 
+              src="/images/alert-illustration.png" 
+              alt="Konfirmasi"
+              width={150} 
+              height={150}
+              className="w-auto h-auto"
+            />
+          </div>
+          
+          {/* Confirm Text */}
+          <div className="mb-6 text-center">
+            <h2 className="text-[#CF0000] text-xl font-bold mb-2">
+              Anda yakin ingin menghapus {selectedCount} data feedback?
+            </h2>
+            <p className="text-[#303030] text-sm">
               Jika Anda menghapus data feedback pengguna, data akan terhapus dan Anda tidak dapat memberikan balasan terkait feedback!
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex gap-3 mt-6">
-            <button
+            </p>
+          </div>
+          
+          {/* Action Buttons */}
+          <div className="flex gap-3 w-full">
+            <Button 
+              variant="outline"
+              className="flex-1 px-6 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 border-none text-[#303030] text-sm font-medium"
               onClick={onClose}
-              className="px-6 py-2 bg-[#EAEAEA] hover:bg-gray-200 text-[#303030] rounded-lg text-sm font-medium transition-colors"
             >
               Kembali
-            </button>
-            <button
+            </Button>
+            <Button 
+              className="flex-1 px-6 py-2 rounded-lg bg-[#CF0000] hover:bg-red-700 text-white text-sm font-medium"
               onClick={onConfirm}
-              className="px-6 py-2 bg-[#CF0000] hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
             >
               Ya, Hapus
-            </button>
+            </Button>
           </div>
         </div>
       </DialogContent>

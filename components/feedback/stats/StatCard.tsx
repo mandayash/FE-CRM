@@ -4,7 +4,7 @@ import { LucideIcon } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 
 interface StatCardProps {
-  icon: LucideIcon;
+  icon: React.ReactNode;
   title: string;
   value: number;
   previousValue: number;
@@ -14,7 +14,7 @@ interface StatCardProps {
 }
 
 const StatCard = ({
-  icon: Icon,
+  icon,
   title,
   value,
   previousValue,
@@ -31,7 +31,7 @@ const StatCard = ({
           <div className="flex items-start gap-3 sm:gap-4 min-w-0">
             {/* Icon with consistent background styling */}
             <div className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 flex items-center justify-center rounded-full bg-red-50">
-              <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-red-600" />
+              {icon}
             </div>
             
             {/* Title and value */}
