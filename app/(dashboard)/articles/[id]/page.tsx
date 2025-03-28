@@ -74,6 +74,12 @@ export default function ArticleDetailPage() {
               </span>
             </div>
 
+            <img
+              src={`${process.env.NEXT_PUBLIC_API_URL}/article${article.image_url}`}
+              alt={article.title}
+              style={{ height: "300px" }}
+            />
+
             {/* Title */}
             <h2 className="text-2xl font-semibold">{article.title}</h2>
 

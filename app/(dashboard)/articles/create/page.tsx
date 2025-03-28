@@ -1,8 +1,6 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { AlertCircle } from "lucide-react";
-import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,19 +8,43 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { AlertCircle, ImagePlus } from "lucide-react";
 import { articleService } from "@/services/articleService";
+import Image from "next/image";
 
 export default function CreateArticlePage() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [image, setImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
-
   const router = useRouter();
 
-  // Handle form submission
-  const handleSubmit = async () => {
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      setErrorMessage("Format gambar tidak didukung.");
+      setShowError(true);
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMessage("Ukuran gambar maksimum 5MB.");
+      setShowError(true);
+      return;
+    }
+
+    setImage(file);
+    setPreviewUrl(URL.createObjectURL(file));
+  };
+
+  const handleSubmit = () => {
     if (!title.trim()) {
       setErrorMessage("Judul artikel wajib diisi.");
       setShowError(true);
@@ -41,20 +63,20 @@ export default function CreateArticlePage() {
   const confirmSubmit = async () => {
     setShowConfirm(false);
     try {
-      const articleData = {
-        title,
-        content,
-        summary: content.substring(0, 100) + "...",
-        is_published: true,
-      };
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("content", content);
+      formData.append("summary", content.substring(0, 100) + "...");
+      formData.append("is_published", "true");
 
-      console.log("Sending article data:", articleData);
+      if (image) {
+        formData.append("image", image);
+      }
 
-      await articleService.createArticle(articleData);
+      await articleService.createArticle(formData);
       alert("Artikel berhasil dipublikasikan!");
-
-      router.push("/articles"); // Redirect ke daftar artikel
-    } catch (error) {
+      router.push("/articles");
+    } catch (error: any) {
       console.error("Error submitting article:", error);
       setErrorMessage(
         error.message || "Gagal mempublikasikan artikel. Silakan coba lagi."
@@ -66,8 +88,8 @@ export default function CreateArticlePage() {
   return (
     <div className="space-y-6 p-4 max-w-7xl mx-auto">
       <h1 className="text-2xl font-medium text-center md:text-left">
-        <span className="text-[#CF0000]">Kelola Artikel</span> |
-        <span className="text-black"> Buat Artikel</span>
+        <span className="text-[#CF0000]">Kelola Artikel</span> |{" "}
+        <span className="text-black">Buat Artikel</span>
       </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -103,16 +125,28 @@ export default function CreateArticlePage() {
                 />
               </div>
 
+              <div className="space-y-2">
+                <label className="block text-sm font-medium">
+                  Thumbnail Gambar
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="text-sm"
+                />
+              </div>
+
               <div className="flex flex-col sm:flex-row justify-end gap-3">
                 <button
                   onClick={() => router.push("/articles")}
-                  className="px-6 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 order-2 sm:order-1"
+                  className="px-6 py-2 rounded-lg bg-gray-100 hover:bg-gray-200"
                 >
                   Batalkan
                 </button>
                 <button
                   onClick={handleSubmit}
-                  className="px-6 py-2 rounded-lg bg-[#CF0000] text-white hover:bg-red-700 order-1 sm:order-2"
+                  className="px-6 py-2 rounded-lg bg-[#CF0000] text-white hover:bg-red-700"
                 >
                   Publikasikan
                 </button>
@@ -121,11 +155,23 @@ export default function CreateArticlePage() {
           </Card>
         </div>
 
-        {/* Card Preview Artikel */}
         <div className="lg:col-span-1 sticky top-6">
           <Card>
             <CardContent className="p-6 space-y-4">
               <h2 className="text-lg font-medium">Preview Artikel</h2>
+              {previewUrl ? (
+                <Image
+                  src={previewUrl}
+                  alt="Preview"
+                  width={400}
+                  height={200}
+                  className="rounded-lg object-cover"
+                />
+              ) : (
+                <div className="bg-gray-100 border border-dashed rounded-lg flex items-center justify-center aspect-video">
+                  <ImagePlus className="w-8 h-8 text-gray-400" />
+                </div>
+              )}
               <div className="space-y-2 max-h-[400px] overflow-y-auto px-2 break-words">
                 <h3 className="font-medium truncate">
                   {title || "Judul artikel akan muncul di sini"}
@@ -139,14 +185,14 @@ export default function CreateArticlePage() {
         </div>
       </div>
 
-      {/* Dialog Konfirmasi */}
+      {/* Konfirmasi Dialog */}
       <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Konfirmasi</DialogTitle>
           </DialogHeader>
           <div className="py-4">
-            <p>Apakah Anda yakin ingin membuat artikel ini?</p>
+            Apakah Anda yakin ingin mempublikasikan artikel ini?
           </div>
           <div className="flex justify-end gap-3">
             <button
@@ -167,15 +213,13 @@ export default function CreateArticlePage() {
 
       {/* Dialog Error */}
       <Dialog open={showError} onOpenChange={setShowError}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-red-600">
               <AlertCircle className="w-5 h-5" /> Kesalahan
             </DialogTitle>
           </DialogHeader>
-          <div className="py-4">
-            <p className="text-gray-600">{errorMessage}</p>
-          </div>
+          <div className="py-4 text-gray-700">{errorMessage}</div>
           <div className="flex justify-end">
             <button
               onClick={() => setShowError(false)}

@@ -21,24 +21,27 @@ export default function FeedbackReplyPage() {
         setLoading(true);
         const data = await feedbackService.getFeedbackById(Number(feedbackId));
 
-        // Transform API data to match the component's expected format
         const transformedData = {
           id: `FB-${data.id}`,
           user: {
             name: data.user?.name || "Unknown User",
             email: data.user?.email || "No email provided",
-            avatar: "/images/profile-placeholder.png", // Default avatar
+            avatar: "/images/profile-placeholder.png",
           },
           type: data.title || "No type specified",
           date: new Date(data.created_at).toLocaleString("id-ID"),
-          station: "N/A", // Placeholder, adjust if your API provides this
+          station: data.station || "-",
           message: data.content,
           image: {
-            url: "/images/profile-placeholder.png", // Placeholder, adjust if your API provides this
-            name: "No image",
+            url: data.image_path
+              ? feedbackService.getImageUrl(data.image_path)
+              : "",
+            name: data.image_path || "No image",
           },
-          rating: 3, // Placeholder, adjust if your API provides this
-          apiData: data, // Keep original API data for reference
+          rating: data.rating,
+          category: data.category,
+          status: data.status,
+          apiData: data,
         };
 
         setFeedbackData(transformedData);
@@ -62,7 +65,6 @@ export default function FeedbackReplyPage() {
   }) => {
     try {
       await feedbackService.respondToFeedback(Number(feedbackId), data.content);
-      // Success! Redirect back to feedback list
       setTimeout(() => {
         router.push("/feedback");
       }, 2000);
@@ -109,7 +111,6 @@ export default function FeedbackReplyPage() {
 
   return (
     <div className="p-4 sm:p-6 max-w-[1200px] mx-auto">
-      {/* Back Button */}
       <div className="flex items-center gap-2 mb-4">
         <button
           onClick={() => router.back()}
@@ -120,7 +121,6 @@ export default function FeedbackReplyPage() {
         <h2 className="text-base sm:text-lg font-medium">Balas Feedback</h2>
       </div>
 
-      {/* Wrapper Content */}
       <FeedbackReplyWrapper
         feedbackData={feedbackData}
         onSubmitReply={handleSubmitReply}

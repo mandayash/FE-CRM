@@ -1,383 +1,247 @@
-// components/feedback/FeedbackTable.tsx
 "use client";
 
-import React, { useState, useEffect } from "react";
-import {
-  Pencil,
-  Trash,
-  ChevronLeft,
-  ChevronRight,
-  ArrowUpDown,
-  FileText,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
-import DeleteModal from "./DeleteModal";
-import DeleteConfirmationModal from "./DeleteConfirmationModal";
-import { ColumnVisibility } from "./FilterSearch";
-
+import { useEffect, useState } from "react";
 import {
   Table,
-  TableBody,
-  TableCell,
-  TableHead,
   TableHeader,
   TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
 } from "@/components/ui/table";
+import { feedbackService, Feedback } from "@/services/feedbackService";
+import { FileText, Pencil, Image as ImageIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ColumnVisibility } from "./FilterSearch";
 
-interface FeedbackTableProps {
-  feedbacks: any[];
-  loading: boolean;
-  error: string | null;
+interface Props {
+  filterStatus: string;
+  searchQuery: string;
   columns: ColumnVisibility;
-  currentPage: number;
-  totalItems: number;
-  itemsPerPage: number;
+  sortField: string;
   sortOrder: "asc" | "desc";
-  onSort: (field: string) => void; // Pastikan ini ada
-  onPageChange: (page: number) => void;
-  onItemsPerPageChange: (size: number) => void;
+  onSort: (field: string) => void;
   onSortToggle: () => void;
 }
 
-const FeedbackTable: React.FC<FeedbackTableProps> = ({
-  feedbacks,
-  loading,
-  error,
+export default function FeedbackTable({
+  filterStatus,
+  searchQuery,
   columns,
-  currentPage,
-  totalItems,
-  itemsPerPage,
   sortField,
-  onSort,
-  onPageChange,
-  onItemsPerPageChange,
-}) => {
+  sortOrder,
+}: Props) {
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [totalItems, setTotalItems] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   const router = useRouter();
-  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-  const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
-  const [selectedFeedback, setSelectedFeedback] = useState(null);
-  const [viewedFeedbacks, setViewedFeedbacks] = useState<number[]>([]);
 
-  // Load viewed feedbacks from localStorage
   useEffect(() => {
-    const storedViewed = localStorage.getItem("viewed_feedbacks");
-    if (storedViewed) {
-      setViewedFeedbacks(JSON.parse(storedViewed));
-    }
-  }, []);
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const res = await feedbackService.getAllFeedbacks(
+          currentPage,
+          itemsPerPage
+        );
+        let data = res.feedbacks;
+        let total = res.total;
 
-  // Fungsi untuk menghapus feedback
-  const handleDeleteClick = (feedback) => {
-    setSelectedFeedback(feedback);
-    setShowDeleteConfirmation(true);
-  };
+        // Filtering
+        if (filterStatus) {
+          data = data.filter((f) => f.status === filterStatus);
+          total = data.length;
+        }
 
-  const handleConfirmDelete = async () => {
-    try {
-      // Implementasi penghapusan feedback di sini
-      setShowDeleteConfirmation(false);
-      setShowDeleteSuccess(true);
-    } catch (err) {
-      console.error("Error deleting feedback:", err);
-    }
-  };
+        // Searching
+        if (searchQuery) {
+          const q = searchQuery.toLowerCase();
+          data = data.filter(
+            (f) =>
+              `FB-${f.id}`.toLowerCase().includes(q) ||
+              f.title.toLowerCase().includes(q) ||
+              f.content.toLowerCase().includes(q)
+          );
+          total = data.length;
+        }
 
-  // Fungsi untuk format tanggal
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleString("id-ID", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
-  };
+        // Sorting
+        if (sortField) {
+          data = data.sort((a, b) => {
+            if (sortField === "id") {
+              return sortOrder === "asc" ? a.id - b.id : b.id - a.id;
+            } else if (sortField === "status") {
+              return sortOrder === "asc"
+                ? a.status.localeCompare(b.status)
+                : b.status.localeCompare(a.status);
+            }
+            return 0;
+          });
+        }
 
-  // Fungsi untuk menandai feedback telah dilihat
-  const handleViewFeedback = (id) => {
-    if (!viewedFeedbacks.includes(id)) {
-      const newViewedFeedbacks = [...viewedFeedbacks, id];
-      setViewedFeedbacks(newViewedFeedbacks);
-      localStorage.setItem(
-        "viewed_feedbacks",
-        JSON.stringify(newViewedFeedbacks)
-      );
-    }
-  };
+        setFeedbacks(data);
+        setTotalItems(total);
+      } catch (err) {
+        console.error("Gagal memuat data feedback:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Cek apakah feedback baru
-  const isNewFeedback = (feedback) => {
-    const createdDate = new Date(feedback.created_at);
-    const now = new Date();
-    const diffHours =
-      (now.getTime() - createdDate.getTime()) / (1000 * 60 * 60);
+    fetchData();
+  }, [filterStatus, searchQuery, sortField, sortOrder, currentPage]);
 
-    return (
-      diffHours < 24 &&
-      feedback.status === "PENDING" &&
-      !viewedFeedbacks.includes(feedback.id)
-    );
-  };
-
-  // Hitung total halaman
   const totalPages = Math.ceil(totalItems / itemsPerPage);
-
-  // Calculate starting index for the current page
-  const startIndex = (currentPage - 1) * itemsPerPage;
-
-  // Generate pagination numbers
-  const getPaginationNumbers = () => {
-    const pages = [];
-    const maxVisiblePages = 5;
-
-    if (totalPages <= maxVisiblePages) {
-      // Show all pages
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      // Show first page, last page, and pages around current page
-      pages.push(1);
-
-      // Add middle pages around current page
-      const startPage = Math.max(2, currentPage - 1);
-      const endPage = Math.min(totalPages - 1, currentPage + 1);
-
-      if (startPage > 2) pages.push("...");
-
-      for (let i = startPage; i <= endPage; i++) {
-        pages.push(i);
-      }
-
-      if (endPage < totalPages - 1) pages.push("...");
-      pages.push(totalPages);
-    }
-
-    return pages;
-  };
-
-  if (loading) {
-    return (
-      <div className="animate-pulse p-4 bg-gray-100 rounded-lg">
-        Loading feedback data...
-      </div>
-    );
-  }
-
-  if (error) {
-    return <div className="p-4 bg-red-50 text-red-600 rounded-lg">{error}</div>;
-  }
 
   return (
     <div className="space-y-4">
-      <Table>
-        <TableHeader className="bg-[#EAEAEA]">
-          <TableRow>
-            <TableHead className="w-[50px] text-center">No</TableHead>
-            {columns.id && (
-              <TableHead
-                onClick={() => onSort("id")}
-                className="flex items-center gap-1.5 text-[#080808] font-medium cursor-pointer"
-              >
-                <div className="flex items-center gap-1.5">
-                  Feedback Id
-                  <ArrowUpDown
-                    size={12}
-                    className={
-                      sortField === "id" ? "text-[#CF0000]" : "text-[#080808]"
-                    }
-                  />
-                </div>
-              </TableHead>
-            )}
-            {columns.date && <TableHead>Tanggal</TableHead>}
-            {columns.userId && <TableHead>User ID</TableHead>}
-            {columns.title && <TableHead>Judul Feedback</TableHead>}
-            {columns.content && <TableHead>Konten Feedback</TableHead>}
-            {columns.status && (
-              <TableHead
-                onClick={() => onSort("status")}
-                className="cursor-pointer"
-              >
-                <div className="flex items-center gap-1.5 text-[#080808] font-medium">
-                  Status
-                  <ArrowUpDown
-                    size={12}
-                    className={
-                      sortField === "status"
-                        ? "text-[#CF0000]"
-                        : "text-[#080808]"
-                    }
-                  />
-                </div>
-              </TableHead>
-            )}
-            {columns.action && <TableHead>Aksi</TableHead>}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {feedbacks.map((feedback, index) => {
-            const isNew = isNewFeedback(feedback);
-            // Calculate the row number based on current page and index
-            const rowNumber = startIndex + index + 1;
-
-            return (
-              <TableRow key={feedback.id} className="h-[50px] relative">
-                <TableCell className="text-center font-medium text-gray-500">
-                  {rowNumber}
+      <div className="overflow-x-auto rounded-lg border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>No</TableHead>
+              {columns.id && <TableHead>ID</TableHead>}
+              {columns.date && <TableHead>Tanggal</TableHead>}
+              {columns.userId && <TableHead>User ID</TableHead>}
+              {columns.title && <TableHead>Judul</TableHead>}
+              {columns.content && <TableHead>Konten</TableHead>}
+              {columns.station && <TableHead>Stasiun</TableHead>}
+              {columns.rating && <TableHead>Rating</TableHead>}
+              {columns.image && <TableHead>Gambar</TableHead>}
+              {columns.category && <TableHead>Kategori</TableHead>}
+              {columns.status && <TableHead>Status</TableHead>}
+              {columns.action && <TableHead>Aksi</TableHead>}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={12}
+                  className="text-center py-6 text-gray-500"
+                >
+                  Memuat data feedback...
                 </TableCell>
-                {columns.id && (
-                  <TableCell className="relative">
-                    {/* Red dot for new feedback */}
-                    {isNew && (
-                      <span className="absolute w-2 h-2 bg-red-500 rounded-full -left-1 top-1/2 transform -translate-y-1/2"></span>
-                    )}
-                    FB-{feedback.id}
-                  </TableCell>
-                )}
-                {columns.date && (
-                  <TableCell>{formatDate(feedback.created_at)}</TableCell>
-                )}
-                {columns.userId && <TableCell>{feedback.user_id}</TableCell>}
-                {columns.title && (
-                  <TableCell className="max-w-[200px] truncate">
-                    {feedback.title}
-                  </TableCell>
-                )}
-                {columns.content && (
-                  <TableCell className="max-w-[200px] truncate">
-                    {feedback.content}
-                  </TableCell>
-                )}
-                {columns.status && (
-                  <TableCell>
-                    <span
-                      className={`px-2 py-1 rounded text-xs
-                      ${
-                        feedback.status === "RESPONDED"
-                          ? "bg-[#EEFBD1] text-[#1F5305]"
-                          : "bg-[#FCE6CF] text-[#CF0000]"
-                      }`}
-                    >
-                      {feedback.status === "RESPONDED" ? "Selesai" : "Belum"}
-                    </span>
-                  </TableCell>
-                )}
-                {columns.action && (
-                  <TableCell>
-                    <div className="flex items-center gap-1.5">
-                      {feedback.status === "RESPONDED" ? (
-                        // Ikon untuk feedback yang sudah direspon
-                        <button
-                          onClick={() => {
-                            handleViewFeedback(feedback.id);
-                            router.push(`/feedback/${feedback.id}/reply`);
-                          }}
-                          className="p-1 hover:bg-gray-100 rounded"
-                        >
-                          <FileText size={18} className="text-gray-600" />
-                        </button>
-                      ) : (
-                        // Ikon untuk feedback yang belum direspon
-                        <>
-                          <button
-                            onClick={() => {
-                              handleViewFeedback(feedback.id);
-                              router.push(`/feedback/${feedback.id}`);
-                            }}
-                            className="p-1 hover:bg-gray-100 rounded"
-                          >
-                            <Pencil size={18} className="text-gray-600" />
-                          </button>
-                          {/* <button
-                            onClick={() => handleDeleteClick(feedback)}
-                            className="p-1 hover:bg-gray-100 rounded"
-                          >
-                            <Trash size={18} className="text-gray-600" />
-                          </button> */}
-                        </>
-                      )}
-                    </div>
-                  </TableCell>
-                )}
               </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-
-      {/* Pagination */}
-      <div className="flex items-center justify-between py-4">
-        <div className="flex items-center gap-2 text-xs">
-          <span className="text-gray-500">Show</span>
-          <select
-            className="bg-[#EAEAEA] px-2 py-1.5 rounded"
-            value={itemsPerPage}
-            onChange={(e) => onItemsPerPageChange(parseInt(e.target.value))}
-          >
-            <option>12</option>
-            <option>24</option>
-            <option>36</option>
-          </select>
-          <span className="text-gray-500">
-            out of {totalItems.toLocaleString()}
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            className="p-1.5 bg-[#EAEAEA] rounded-lg disabled:opacity-50"
-            onClick={() => onPageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-          >
-            <ChevronLeft size={16} className="text-[#080808]" />
-          </button>
-
-          {getPaginationNumbers().map((page, i) => (
-            <button
-              key={i}
-              onClick={() =>
-                typeof page === "number" ? onPageChange(page) : null
-              }
-              className={`w-[30px] h-[30px] flex items-center justify-center rounded-lg text-xs
-                ${
-                  page === currentPage
-                    ? "bg-[#CF0000] text-white"
-                    : page === "..."
-                    ? "bg-transparent cursor-default"
-                    : "bg-[#EAEAEA] text-[#080808]"
-                }`}
-            >
-              {page}
-            </button>
-          ))}
-
-          <button
-            className="p-1.5 bg-[#EAEAEA] rounded-lg disabled:opacity-50"
-            onClick={() => onPageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-          >
-            <ChevronRight size={16} className="text-[#080808]" />
-          </button>
-        </div>
+            ) : feedbacks.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={12}
+                  className="text-center py-6 text-gray-500"
+                >
+                  Tidak ada data ditemukan.
+                </TableCell>
+              </TableRow>
+            ) : (
+              feedbacks.map((f, idx) => (
+                <TableRow key={f.id}>
+                  <TableCell>
+                    {(currentPage - 1) * itemsPerPage + idx + 1}
+                  </TableCell>
+                  {columns.id && <TableCell>FB-{f.id}</TableCell>}
+                  {columns.date && (
+                    <TableCell>
+                      {new Date(f.created_at).toLocaleString("id-ID")}
+                    </TableCell>
+                  )}
+                  {columns.userId && <TableCell>{f.user_id}</TableCell>}
+                  {columns.title && <TableCell>{f.title}</TableCell>}
+                  {columns.content && <TableCell>{f.content}</TableCell>}
+                  {columns.station && <TableCell>{f.station}</TableCell>}
+                  {columns.rating && <TableCell>{f.rating}</TableCell>}
+                  {columns.image && (
+                    <TableCell>
+                      {f.image_path ? (
+                        <a
+                          href={feedbackService.getImageUrl(f.image_path)}
+                          target="_blank"
+                          className="flex items-center gap-1 text-blue-600"
+                        >
+                          <ImageIcon size={16} /> Lihat
+                        </a>
+                      ) : (
+                        "-"
+                      )}
+                    </TableCell>
+                  )}
+                  {columns.category && <TableCell>{f.category}</TableCell>}
+                  {columns.status && (
+                    <TableCell
+                      className={
+                        f.status === "RESPONDED"
+                          ? "text-green-600"
+                          : "text-yellow-600"
+                      }
+                    >
+                      {f.status === "RESPONDED" ? "Selesai" : "Belum"}
+                    </TableCell>
+                  )}
+                  {columns.action && (
+                    <TableCell>
+                      <button
+                        onClick={() =>
+                          router.push(
+                            f.status === "RESPONDED"
+                              ? `/feedback/${f.id}/reply`
+                              : `/feedback/${f.id}`
+                          )
+                        }
+                      >
+                        {f.status === "RESPONDED" ? (
+                          <FileText size={18} />
+                        ) : (
+                          <Pencil size={18} />
+                        )}
+                      </button>
+                    </TableCell>
+                  )}
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
       </div>
 
-      {/* Modals */}
-      <DeleteConfirmationModal
-        isOpen={showDeleteConfirmation}
-        onClose={() => setShowDeleteConfirmation(false)}
-        onConfirm={handleConfirmDelete}
-        selectedCount={selectedFeedback ? 1 : 0}
-      />
-
-      <DeleteModal
-        isOpen={showDeleteSuccess}
-        onClose={() => setShowDeleteSuccess(false)}
-      />
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-4">
+          <div className="flex gap-2 items-center">
+            <button
+              className="px-3 py-1 border rounded disabled:opacity-50"
+              onClick={() => setCurrentPage((prev) => prev - 1)}
+              disabled={currentPage === 1}
+            >
+              Prev
+            </button>
+            {[...Array(totalPages)].map((_, i) => {
+              const page = i + 1;
+              return (
+                <button
+                  key={page}
+                  className={`px-3 py-1 border rounded ${
+                    currentPage === page
+                      ? "bg-red-600 text-white"
+                      : "bg-white text-gray-800"
+                  }`}
+                  onClick={() => setCurrentPage(page)}
+                >
+                  {page}
+                </button>
+              );
+            })}
+            <button
+              className="px-3 py-1 border rounded disabled:opacity-50"
+              onClick={() => setCurrentPage((prev) => prev + 1)}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
-};
-
-export default FeedbackTable;
+}

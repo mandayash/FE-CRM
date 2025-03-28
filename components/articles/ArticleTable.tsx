@@ -10,11 +10,9 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-
-// Import modal components
-import ConfirmDeleteArticle from '@/components/articles/modals/ConfirmDeleteArticle';
-import SuccessDeleteArticle from '@/components/articles/modals/SuccessDeleteArticle';
-import ErrorDeleteArticle from '@/components/articles/modals/ErrorDeleteArticle';
+import ConfirmDeleteArticle from "@/components/articles/modals/ConfirmDeleteArticle";
+import SuccessDeleteArticle from "@/components/articles/modals/SuccessDeleteArticle";
+import ErrorDeleteArticle from "@/components/articles/modals/ErrorDeleteArticle";
 
 interface ColumnVisibility {
   id: boolean;
@@ -26,90 +24,69 @@ interface ColumnVisibility {
   actions: boolean;
 }
 
-// StatusBadge component - Dari kode asli Anda
-const StatusBadge = ({ status }: { status: 'Draft' | 'Terkirim' | 'Gagal' }) => {
+const StatusBadge = ({
+  status,
+}: {
+  status: "Draft" | "Terkirim" | "Gagal";
+}) => {
   const styles = {
-    'Draft': 'bg-[#4B5563] text-[#FFFFFF]',
-    'Terkirim': 'bg-[#EEFBD1] text-[#1F5305]',
-    'Gagal': 'bg-[#FCE6CF] text-[#CF0000]'
+    Draft: "bg-[#4B5563] text-white",
+    Terkirim: "bg-[#EEFBD1] text-[#1F5305]",
+    Gagal: "bg-[#FCE6CF] text-[#CF0000]",
   }[status];
-
   return (
-    <span className={`px-2 py-1 rounded text-xs ${styles}`}>
-      {status}
-    </span>
+    <span className={`px-2 py-1 rounded text-xs ${styles}`}>{status}</span>
   );
 };
 
 export default function ArticleTable({
   articles,
-  visibleColumns = {
-    id: true,
-    date: true,
-    title: true,
-    content: true,
-    image: true,
-    status: true,
-    actions: true
-  },
+  visibleColumns,
   pagination = { page: 1, limit: 10, total: 0 },
-  onPageChange = (page: number) => {}
+  onPageChange = () => {},
 }: {
   articles: Article[];
-  visibleColumns?: ColumnVisibility;
-  pagination?: { page: number; limit: number; total: number };
-  onPageChange?: (page: number) => void;
+  visibleColumns: ColumnVisibility;
+  pagination: { page: number; limit: number; total: number };
+  onPageChange: (page: number) => void;
 }) {
   const router = useRouter();
   const totalPages = Math.ceil(pagination.total / pagination.limit);
-  
-  // State untuk modal
+
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [showSuccessDelete, setShowSuccessDelete] = useState(false);
   const [showErrorDelete, setShowErrorDelete] = useState(false);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
 
-  // Handler untuk tombol delete
   const handleDeleteClick = (article: Article) => {
     setSelectedArticle(article);
     setShowConfirmDelete(true);
   };
 
-  // Handler untuk konfirmasi delete
   const handleConfirmDelete = async () => {
     setShowConfirmDelete(false);
-    
     if (!selectedArticle) return;
-    
+
     try {
-      // Menggunakan service untuk delete artikel
       await articleService.deleteArticle(selectedArticle.id);
-      
-      // Tampilkan modal sukses
-      setShowSuccessDelete(true)
+      setShowSuccessDelete(true);
     } catch (error) {
-      console.error('Error deleting article:', error);
+      console.error("Error deleting article:", error);
       setShowErrorDelete(true);
     }
   };
 
-  // Handler untuk menutup modal sukses hapus
   const handleSuccessDeleteClose = () => {
     setShowSuccessDelete(false);
-    // Refresh data
     router.refresh();
   };
 
-  // Handler untuk menutup modal error hapus
   const handleErrorDeleteClose = () => {
     setShowErrorDelete(false);
   };
 
-  // Helper function untuk mendapatkan status artikel
-  const getArticleStatus = (article: Article): 'Draft' | 'Terkirim' | 'Gagal' => {
-
-    return article.is_published ? 'Terkirim' : 'Draft';
-  };
+  const getArticleStatus = (article: Article): "Draft" | "Terkirim" | "Gagal" =>
+    article.is_published ? "Terkirim" : "Draft";
 
   return (
     <>
@@ -122,22 +99,34 @@ export default function ArticleTable({
                   <input type="checkbox" className="rounded" />
                 </th>
                 {visibleColumns.id && (
-                  <th className="p-4 text-center text-sm font-medium">Artikel Id</th>
+                  <th className="p-4 text-center text-sm font-medium">
+                    Artikel Id
+                  </th>
                 )}
                 {visibleColumns.date && (
-                  <th className="p-4 text-center text-sm font-medium">Tanggal Artikel</th>
+                  <th className="p-4 text-center text-sm font-medium">
+                    Tanggal Artikel
+                  </th>
                 )}
                 {visibleColumns.title && (
-                  <th className="p-4 text-center text-sm font-medium">Judul Artikel</th>
+                  <th className="p-4 text-center text-sm font-medium">
+                    Judul Artikel
+                  </th>
                 )}
                 {visibleColumns.content && (
-                  <th className="p-4 text-center text-sm font-medium">Isi Artikel</th>
+                  <th className="p-4 text-center text-sm font-medium">
+                    Isi Artikel
+                  </th>
                 )}
                 {visibleColumns.image && (
-                  <th className="p-4 text-center text-sm font-medium">Gambar Artikel</th>
+                  <th className="p-4 text-center text-sm font-medium">
+                    Gambar Artikel
+                  </th>
                 )}
                 {visibleColumns.status && (
-                  <th className="p-4 text-center text-sm font-medium">Status</th>
+                  <th className="p-4 text-center text-sm font-medium">
+                    Status
+                  </th>
                 )}
                 {visibleColumns.actions && (
                   <th className="p-4 text-center text-sm font-medium">Aksi</th>
@@ -145,82 +134,96 @@ export default function ArticleTable({
               </tr>
             </thead>
             <tbody>
-              {articles.map((article) => (
-                <tr key={article.id} className="bg-white hover:bg-gray-50 border-t">
-                  <td className="p-4 text-left">
-                    <input type="checkbox" className="rounded" />
+              {articles.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={99}
+                    className="p-6 text-center text-sm text-gray-500"
+                  >
+                    Tidak ada artikel ditemukan.
                   </td>
-                  {visibleColumns.id && (
-                    <td className="p-4 text-center text-sm font-medium">
-                      {typeof article.id === 'number' ? `AR-${article.id}` : article.id}
+                </tr>
+              ) : (
+                articles.map((article) => (
+                  <tr
+                    key={article.id}
+                    className="bg-white hover:bg-gray-50 border-t"
+                  >
+                    <td className="p-4 text-left">
+                      <input type="checkbox" className="rounded" />
                     </td>
-                  )}
-                  {visibleColumns.date && (
-                    <td className="p-4 text-center text-sm whitespace-nowrap">
-                      {article.created_at && 
-                        new Date(article.created_at).toLocaleString('id-ID')}
-                    </td>
-                  )}
-                  {visibleColumns.title && (
-                    <td className="p-4 text-center text-sm max-w-[200px] truncate">
-                      {article.title}
-                    </td>
-                  )}
-                  {visibleColumns.content && (
-                    <td className="p-4 text-center text-sm max-w-[300px] truncate">
-                      {article.summary || 
-                       (article.content && article.content.substring(0, 100) + '...')}
-                    </td>
-                  )}
-                  {visibleColumns.image && (
-                    <td className="p-4 text-center text-sm text-gray-500">
-                      {article.image_url || '-'}
-                    </td>
-                  )}
-                  {visibleColumns.status && (
-                    <td className="p-4 text-center">
-                      <StatusBadge status={getArticleStatus(article)} />
-                    </td>
-                  )}
-                  {visibleColumns.actions && (
-                    <td className="p-4">
-                      <div className="flex justify-center gap-2">
-                        {article.is_published ? (
+                    {visibleColumns.id && (
+                      <td className="p-4 text-center text-sm font-medium">
+                        {typeof article.id === "number"
+                          ? `AR-${article.id}`
+                          : article.id}
+                      </td>
+                    )}
+                    {visibleColumns.date && (
+                      <td className="p-4 text-center text-sm whitespace-nowrap">
+                        {article.created_at &&
+                          new Date(article.created_at).toLocaleString("id-ID")}
+                      </td>
+                    )}
+                    {visibleColumns.title && (
+                      <td className="p-4 text-center text-sm max-w-[200px] truncate">
+                        {article.title}
+                      </td>
+                    )}
+                    {visibleColumns.content && (
+                      <td className="p-4 text-center text-sm max-w-[300px] truncate">
+                        {article.summary ||
+                          article.content?.substring(0, 100) + "..."}
+                      </td>
+                    )}
+                    {visibleColumns.image && (
+                      <td className="p-4 text-center text-sm text-gray-500">
+                        {article.image_url || "-"}
+                      </td>
+                    )}
+                    {visibleColumns.status && (
+                      <td className="p-4 text-center">
+                        <StatusBadge status={getArticleStatus(article)} />
+                      </td>
+                    )}
+                    {visibleColumns.actions && (
+                      <td className="p-4">
+                        <div className="flex justify-center gap-2">
                           <button
-                            onClick={() => router.push(`/articles/${article.id}`)}  
-                            className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors text-center"
+                            onClick={() =>
+                              router.push(`/articles/${article.id}`)
+                            }
+                            className="p-1.5 hover:bg-gray-100 rounded-lg"
                             title="Lihat Detail"
                           >
                             <FileText className="w-4 h-4 text-gray-500" />
                           </button>
-                        ) : (
-                          <>
-                            <button
-                              onClick={() => router.push(`/articles/${article.id}/edit`)}
-                              className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
-                              title="Edit Artikel"
-                            >
-                              <Pencil className="w-4 h-4 text-gray-500" />
-                            </button>
-                            <button 
-                              onClick={() => handleDeleteClick(article)}
-                              className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
-                              title="Hapus Artikel"
-                            >
-                              <Trash className="w-4 h-4 text-gray-500" />
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </td>
-                  )}
-                </tr>
-              ))}
+                          <button
+                            onClick={() =>
+                              router.push(`/articles/${article.id}/edit`)
+                            }
+                            className="p-1.5 hover:bg-gray-100 rounded-lg"
+                            title="Edit Artikel"
+                          >
+                            <Pencil className="w-4 h-4 text-gray-500" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteClick(article)}
+                            className="p-1.5 hover:bg-gray-100 rounded-lg"
+                            title="Hapus Artikel"
+                          >
+                            <Trash className="w-4 h-4 text-gray-500" />
+                          </button>
+                        </div>
+                      </td>
+                    )}
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
-        
-        {/* Pagination */}
+
         {totalPages > 1 && (
           <div className="flex justify-between items-center p-4 border-t">
             <button
@@ -244,21 +247,18 @@ export default function ArticleTable({
         )}
       </div>
 
-      {/* Modal Konfirmasi Hapus */}
-      <ConfirmDeleteArticle 
+      <ConfirmDeleteArticle
         isOpen={showConfirmDelete}
         onClose={() => setShowConfirmDelete(false)}
         onConfirm={handleConfirmDelete}
       />
 
-      {/* Modal Sukses Hapus */}
-      <SuccessDeleteArticle 
+      <SuccessDeleteArticle
         isOpen={showSuccessDelete}
         onClose={handleSuccessDeleteClose}
       />
 
-      {/* Modal Error Hapus */}
-      <ErrorDeleteArticle 
+      <ErrorDeleteArticle
         isOpen={showErrorDelete}
         onClose={handleErrorDeleteClose}
       />

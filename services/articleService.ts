@@ -11,6 +11,7 @@ export interface Article {
   created_at: string;
   updated_at: string;
   published_at: string | null;
+  image_url?: string | null;
 }
 
 export interface ArticleListResponse {
@@ -20,86 +21,97 @@ export interface ArticleListResponse {
   limit: number;
 }
 
+export interface CreateArticlePayload {
+  title: string;
+  summary: string;
+  content: string;
+  is_published: boolean;
+  image?: File;
+}
+
+export interface UpdateArticlePayload {
+  title?: string;
+  summary?: string;
+  content?: string;
+  is_published?: boolean;
+  image?: File;
+}
+
 export const articleService = {
   // Mendapatkan semua artikel
   getAllArticles: async (
     page = 1,
     limit = 10
   ): Promise<ArticleListResponse> => {
-    try {
-      const response = await apiClient.get(
-        `/articles?page=${page}&limit=${limit}`
-      );
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching articles:", error);
-      throw error;
-    }
+    const response = await apiClient.get(
+      `/articles?page=${page}&limit=${limit}`
+    );
+    return response.data;
+  },
+
+  // Mencari artikel berdasarkan query
+  searchArticles: async (
+    query: string,
+    page = 1,
+    limit = 10
+  ): Promise<ArticleListResponse> => {
+    const response = await apiClient.get(
+      `/articles/search?q=${encodeURIComponent(
+        query
+      )}&page=${page}&limit=${limit}`
+    );
+    return response.data;
   },
 
   // Mendapatkan artikel berdasarkan ID
   getArticleById: async (id: number): Promise<Article> => {
-    try {
-      const response = await apiClient.get(`/articles/${id}`);
-      return response.data;
-    } catch (error) {
-      console.error(`Error fetching article with ID ${id}:`, error);
-      throw error;
-    }
+    const response = await apiClient.get(`/articles/${id}`);
+    return response.data;
   },
 
-  // Membuat artikel baru
-  createArticle: async (
-    articleData: Omit<
-      Article,
-      | "id"
-      | "author_id"
-      | "view_count"
-      | "created_at"
-      | "updated_at"
-      | "published_at"
-    >
-  ): Promise<Article> => {
-    try {
-      const response = await apiClient.post("/articles", articleData);
-      return response.data;
-    } catch (error) {
-      console.error("Error creating article:", error);
-      throw error;
-    }
+  // Membuat artikel baru (dengan gambar opsional)
+  createArticle: async (articleData: FormData): Promise<Article> => {
+    const response = await apiClient.post("/articles", articleData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
   },
 
-  // Mengupdate artikel
+  // Mengupdate artikel (dengan gambar opsional & partial form)
   updateArticle: async (
     id: number,
-    updatedData: Partial<
-      Omit<
-        Article,
-        | "id"
-        | "author_id"
-        | "view_count"
-        | "created_at"
-        | "updated_at"
-        | "published_at"
-      >
-    >
+    data: UpdateArticlePayload
   ): Promise<Article> => {
-    try {
-      const response = await apiClient.put(`/articles/${id}`, updatedData);
-      return response.data;
-    } catch (error) {
-      console.error(`Error updating article with ID ${id}:`, error);
-      throw error;
+    const formData = new FormData();
+    if (data.title) formData.append("title", data.title);
+    if (data.summary) formData.append("summary", data.summary);
+    if (data.content) formData.append("content", data.content);
+    if (data.is_published !== undefined) {
+      formData.append("is_published", data.is_published.toString());
     }
+    if (data.image) {
+      formData.append("image", data.image);
+    }
+
+    const response = await apiClient.put(`/articles/${id}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return response.data;
   },
 
   // Menghapus artikel
   deleteArticle: async (id: number): Promise<void> => {
-    try {
-      await apiClient.delete(`/articles/${id}`);
-    } catch (error) {
-      console.error(`Error deleting article with ID ${id}:`, error);
-      throw error;
-    }
+    await apiClient.delete(`/articles/${id}`);
+  },
+
+  // Generate URL gambar artikel
+  getImageUrl: (imagePath: string | null | undefined): string => {
+    if (!imagePath) return "";
+    return `${process.env.NEXT_PUBLIC_API_URL}/article/uploads/${imagePath}`;
   },
 };

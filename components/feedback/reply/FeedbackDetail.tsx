@@ -14,6 +14,8 @@ interface FeedbackDetailProps {
   type?: string;
   date?: string;
   station?: string;
+  category?: string;
+  status?: string;
   message?: string;
   image?: {
     url: string;
@@ -32,6 +34,8 @@ const FeedbackDetail = ({
   type = "Masalah Fasilitas",
   date = "2028-02-27 | 04:28:48",
   station = "Demang",
+  category = "Saran & Kritik",
+  status = "PENDING",
   message = "AC di dalam kereta tidak dingin, terutama saat jam ramai. Rasanya pengap dan tidak nyaman.",
   image = {
     url: "/path-to-image.jpg",
@@ -41,46 +45,25 @@ const FeedbackDetail = ({
 }: FeedbackDetailProps) => {
   return (
     <div className="w-full max-w-[443px] p-4 sm:p-6 flex flex-col gap-2.5 sm:gap-3 rounded-2xl border border-[#C0C0C0] bg-[#F9F9F9]">
-      {/* Judul */}
       <h2 className="text-base sm:text-[18px] font-medium leading-[150%] tracking-[0.5px] text-[#080808]">
         Feedback
       </h2>
 
-      {/* Feedback ID */}
       <div className="space-y-1.5 sm:space-y-2">
         <p className="text-xs sm:text-sm font-medium leading-[150%] tracking-[0.5px] text-[#080808]">
           Feedback ID: {id}
         </p>
       </div>
 
-      {/* User Info */}
-      {/* <div className="space-y-1.5 sm:space-y-2">
-        <p className="text-xs sm:text-sm font-medium leading-[150%] tracking-[0.5px] text-[#080808]">
-          User
-        </p>
-        <div className="flex items-center gap-2 rounded-lg border border-[#EAEAEA] bg-[#EAEAEA] p-2">
-          <div className="relative w-6 h-6 sm:w-[30px] sm:h-[30px] flex-shrink-0">
-            <Image
-              src={user.avatar}
-              alt={user.name}
-              fill
-              className="rounded-full object-cover"
-            />
-          </div>
-          <div className="flex flex-col min-w-0">
-            <span className="text-[10px] sm:text-xs truncate">{user.name}</span>
-            <span className="text-[10px] sm:text-xs text-gray-500 truncate">{user.email}</span>
-          </div>
-        </div>
-      </div> */}
-
-      {/* user info untuk sekarang ditiadakan meninjau dari segi privacy customer */}
-
-      {/* Sections with common styling */}
       {[
         { label: "Jenis Umpan Balik", value: type },
+        { label: "Kategori", value: category },
+        {
+          label: "Status",
+          value: status === "RESPONDED" ? "Selesai" : "Belum",
+        },
+        { label: "Stasiun Keberangkatan", value: station },
         { label: "Tanggal dan Waktu Perjalanan", value: date },
-        // { label: "Stasiun Keberangkatan", value: station },
         { label: "Feedback", value: message },
       ].map((section) => (
         <div key={section.label} className="space-y-1.5 sm:space-y-2">
@@ -95,29 +78,27 @@ const FeedbackDetail = ({
         </div>
       ))}
 
-      {/* untuk next update */}
-
-      {/* File Pendukung */}
-      {/* <div className="space-y-1.5 sm:space-y-2">
-        <p className="text-xs sm:text-sm font-medium leading-[150%] tracking-[0.5px] text-[#080808]">
-          File Pendukung
-        </p>
-        <div className="rounded-lg border border-[#EAEAEA] bg-[#EAEAEA] p-2 sm:p-2.5">
-          <div className="relative w-full aspect-[2/1] mb-2">
-            <Image
-              src={image.url}
-              alt="Supporting document"
-              fill
-              className="rounded-lg object-cover"
-            />
-          </div>
-          <p className="text-[10px] sm:text-xs text-center text-gray-500">
-            {image.name}
+      {image?.url && (
+        <div className="space-y-1.5 sm:space-y-2">
+          <p className="text-xs sm:text-sm font-medium leading-[150%] tracking-[0.5px] text-[#080808]">
+            File Pendukung
           </p>
+          <div className="rounded-lg border border-[#EAEAEA] bg-[#EAEAEA] p-2 sm:p-2.5">
+            <div className="relative w-full aspect-[2/1] mb-2">
+              <Image
+                src={image.url}
+                alt="Supporting document"
+                fill
+                className="rounded-lg object-cover"
+              />
+            </div>
+            <p className="text-[10px] sm:text-xs text-center text-gray-500">
+              {image.name}
+            </p>
+          </div>
         </div>
-      </div> */}
+      )}
 
-      {/* Penilaian */}
       <div className="space-y-1.5 sm:space-y-2">
         <p className="text-xs sm:text-sm font-medium leading-[150%] tracking-[0.5px] text-[#080808]">
           Penilaian
