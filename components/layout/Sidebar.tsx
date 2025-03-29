@@ -2,18 +2,9 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import {
-  LayoutDashboard,
-  MessageSquare,
-  Users,
-  FileText,
-  X,
-  ScanQrCode,
-  Gift,
-} from "lucide-react";
+import { X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "@/contexts/SideBarContext";
-import { COLORS } from "@/constants/theme";
 
 const Sidebar = () => {
   const pathname = usePathname();

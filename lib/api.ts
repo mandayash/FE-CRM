@@ -10,15 +10,16 @@ const apiClient = axios.create({
   },
 });
 
-// Request interceptor to add the auth token to requests
+// Request interceptor to add auth token and API key
 apiClient.interceptors.request.use(
   (config) => {
-    // Get token from cookies
     const token = getCookie("token");
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    config.headers["x-api-key"] = process.env.NEXT_PUBLIC_API_KEY || "";
 
     return config;
   },

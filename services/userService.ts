@@ -63,22 +63,21 @@ export const userService = {
   },
 
   // Get current user profile (for auth context)
-  getProfile: async (): Promise<User> => {
+  getProfile: async (): Promise<User | null> => {
     try {
-      // Get the user ID from token or localStorage
       const userData = localStorage.getItem("user_data");
-      if (!userData) throw new Error("No user data found");
+      if (!userData) return null;
 
       const user = JSON.parse(userData);
       const userId = user.id;
 
-      if (!userId) throw new Error("No user ID found");
+      if (!userId) return null;
 
       const response = await apiClient.get(`/users/${userId}`);
       return response.data;
     } catch (error) {
       console.error("Error fetching user profile:", error);
-      throw error;
+      return null;
     }
   },
 };
