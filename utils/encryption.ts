@@ -1,26 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// utils/encryption.ts
 
-// Kunci enkripsi (sebaiknya simpan di environment variable)
-const ENCRYPTION_KEY =
-  process.env.NEXT_PUBLIC_ENCRYPTION_KEY || "lrt-sumsel-crm-secure-key-2025";
+const ENCRYPTION_KEY = process.env.NEXT_PUBLIC_ENCRYPTION_KEY;
 
-// Fungsi untuk mengenkripsi data
+if (!ENCRYPTION_KEY) {
+  throw new Error(
+    "ENCRYPTION_KEY is missing. Please set it in your environment variables."
+  );
+}
+
+const KEY_LENGTH = ENCRYPTION_KEY.length;
+
 export function encryptData(data: any): string {
   try {
-    // Mengubah data menjadi string JSON
     const jsonString = JSON.stringify(data);
 
-    // Mengenkripsi data menggunakan algoritma sederhana
-    // Catatan: Ini bukan enkripsi yang sangat kuat, hanya untuk basic protection
     const encrypted = btoa(
       encodeURIComponent(
         Array.from(jsonString)
-          .map((char) => {
-            return String.fromCharCode(
-              char.charCodeAt(0) + ENCRYPTION_KEY.length
-            );
-          })
+          .map((char) => String.fromCharCode(char.charCodeAt(0) + KEY_LENGTH))
           .join("")
       )
     );
@@ -32,18 +29,13 @@ export function encryptData(data: any): string {
   }
 }
 
-// Fungsi untuk mendekripsi data
 export function decryptData(encryptedData: string): any {
   try {
-    // Dekripsi data
     const decrypted = decodeURIComponent(atob(encryptedData))
       .split("")
-      .map((char) => {
-        return String.fromCharCode(char.charCodeAt(0) - ENCRYPTION_KEY.length);
-      })
+      .map((char) => String.fromCharCode(char.charCodeAt(0) - KEY_LENGTH))
       .join("");
 
-    // Parse kembali menjadi objek
     return JSON.parse(decrypted);
   } catch (error) {
     console.error("Decryption failed:", error);
