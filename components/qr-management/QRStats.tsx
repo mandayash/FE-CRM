@@ -52,7 +52,7 @@ const QRStats = () => {
           <path
             fillRule="evenodd"
             clipRule="evenodd"
-            d="M7.78074 0H8.85766C..."
+            d="M4 4h8v8H4V4zm12 0h8v8h-8V4zM4 15h8v8H4v-8zm12 0h3v3h-3v-3z"
             fill="#CF0000"
           />
         </svg>
@@ -67,14 +67,12 @@ const QRStats = () => {
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="30"
-          height="31"
-          viewBox="0 0 30 31"
+          height="30"
+          viewBox="0 0 24 24"
           fill="none"
         >
           <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M6.83251 3.66245C..."
+            d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"
             fill="#C49122"
           />
         </svg>
