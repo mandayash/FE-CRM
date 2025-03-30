@@ -3,8 +3,6 @@
 
 import DashboardStats from "@/components/dashboard/DashboardStats";
 import UsersBarChart from "@/components/dashboard/UsersBarChart";
-import RatingStats from "@/components/dashboard/RatingStats";
-import LevelStats from "@/components/dashboard/LevelStats";
 import FeedbackData from "@/components/dashboard/FeedbackData";
 
 const DashboardPage = () => {

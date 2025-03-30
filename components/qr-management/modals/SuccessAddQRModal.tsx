@@ -1,14 +1,12 @@
-import React from 'react';
-import {
-  Dialog,
-  DialogContent,
-} from "@/components/ui/dialog";
+import React from "react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
 interface SuccessAddQRModalProps {
   isOpen: boolean;
   onClose: () => void;
+  qrImageUrl: string | null;
 }
 
 const SuccessAddQRModal = ({ isOpen, onClose }: SuccessAddQRModalProps) => {
@@ -19,15 +17,15 @@ const SuccessAddQRModal = ({ isOpen, onClose }: SuccessAddQRModalProps) => {
         <div className="flex flex-col items-center p-6 text-center">
           {/* Ilustrasi Petugas */}
           <div className="mb-6">
-            <Image 
-              src="/images/success-feedback.png" 
-              alt="Petugas" 
-              width={150} 
+            <Image
+              src="/images/success-feedback.png"
+              alt="Petugas"
+              width={150}
               height={150}
               className="w-auto h-auto"
             />
           </div>
-          
+
           {/* Success Text */}
           <div className="mb-6 text-center">
             <h2 className="text-[#CF0000] text-xl font-bold mb-2">
@@ -37,9 +35,9 @@ const SuccessAddQRModal = ({ isOpen, onClose }: SuccessAddQRModalProps) => {
               Data QR berhasil ditambahkan.
             </p>
           </div>
-          
+
           {/* Action Button */}
-          <Button 
+          <Button
             variant="outline"
             className="px-6 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 border-none text-[#303030] text-sm font-medium min-w-[120px]"
             onClick={onClose}

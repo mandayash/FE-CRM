@@ -1,22 +1,17 @@
-import React from 'react';
-import {
-  Dialog,
-  DialogContent,
-} from "@/components/ui/dialog";
+import React from "react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ScanQrCode } from "lucide-react";
 import Image from "next/image";
+import { QRFeedback } from "@/services/qrService";
 
-interface LihatQRModalProps {
+interface QRCodeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  qrData: {
-    id: string;
-    qrImageUrl?: string;
-  };
+  qrData: QRFeedback;
 }
 
-const LihatQRModal = ({ isOpen, onClose, qrData }: LihatQRModalProps) => {
+const LihatQRModal = ({ isOpen, onClose, qrData }: QRCodeModalProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[400px] p-0 rounded-2xl border-0 shadow-lg bg-white overflow-hidden">
@@ -33,8 +28,8 @@ const LihatQRModal = ({ isOpen, onClose, qrData }: LihatQRModalProps) => {
         <div className="px-6 pb-4 flex flex-col items-center">
           <div className="w-[160px] h-[160px] mb-4">
             {qrData.qrImageUrl ? (
-              <Image 
-                src={qrData.qrImageUrl} 
+              <Image
+                src={qrData.qrImageUrl}
                 alt={`QR Code ${qrData.id}`}
                 width={160}
                 height={160}
@@ -66,7 +61,7 @@ const LihatQRModal = ({ isOpen, onClose, qrData }: LihatQRModalProps) => {
             <p className="text-base font-medium">{qrData.id}</p>
           </div>
 
-          <Button 
+          <Button
             variant="outline"
             className="bg-gray-100 hover:bg-gray-200 border-gray-300 rounded-lg px-6 py-2 text-sm"
             onClick={onClose}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Search, Table, Check, Plus } from "lucide-react";
 import Link from "next/link";
 import ArticleTable from "@/components/articles/ArticleTable";
@@ -40,7 +40,7 @@ export default function ArticlesPage() {
     total: 0,
   });
 
-  const fetchArticles = async () => {
+  const fetchArticles = useCallback(async () => {
     setLoading(true);
     try {
       const res = searchQuery
@@ -56,22 +56,19 @@ export default function ArticlesPage() {
 
       setArticles(res.articles);
       setPagination((prev) => ({ ...prev, total: res.total }));
+      setStats({ total: res.total });
       setError(null);
-
-      setStats({
-        total: res.total,
-      });
     } catch (err) {
       console.error("Gagal memuat artikel:", err);
       setError("Gagal memuat artikel. Silakan coba lagi.");
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.page, pagination.limit, searchQuery]);
 
   useEffect(() => {
     fetchArticles();
-  }, [pagination.page, pagination.limit, searchQuery]);
+  }, [fetchArticles]);
 
   const toggleColumn = (key: keyof ColumnVisibility) => {
     setVisibleColumns((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -79,7 +76,6 @@ export default function ArticlesPage() {
 
   return (
     <div className="space-y-6 py-4">
-      {/* Header and Actions */}
       <ArticleStats totalArticles={stats.total} />
 
       <div className="flex flex-col sm:flex-row justify-between gap-4 sm:items-center">

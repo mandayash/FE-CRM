@@ -35,7 +35,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen">
       {/* Left Side - Illustration */}
       <div className="hidden lg:flex lg:w-1/2 bg-[#CF0000] items-center justify-center p-4 md:p-8">
-        <div className="relative w-full max-w-[500px] aspect-square">
+        <div className="relative w-full max-w-[700px] aspect-square">
           <Image
             src="/images/login-illustration.png"
             alt="LRT Illustration"

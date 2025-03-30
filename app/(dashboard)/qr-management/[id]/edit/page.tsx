@@ -1,27 +1,29 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useRef } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { UploadCloudIcon } from 'lucide-react';
-import ConfirmEditModal from '@/components/gift/modals/ConfirmEditModal';
-import SuccessEditModal from '@/components/gift/modals/SuccessEditModal';
-import ErrorEditModal from '@/components/gift/modals/ErrorEditModal';
+import { useState, useEffect, useRef } from "react";
+import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
+import { UploadCloudIcon } from "lucide-react";
+import ConfirmEditModal from "@/components/gift/modals/ConfirmEditModal";
+import SuccessEditModal from "@/components/gift/modals/SuccessEditModal";
+import ErrorEditModal from "@/components/gift/modals/ErrorEditModal";
 
 export default function EditHadiahPage() {
   const router = useRouter();
   const params = useParams();
   const giftId = params.id as string;
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   // Form state
-  const [giftName, setGiftName] = useState('Mug');
+  const [giftName, setGiftName] = useState("Mug");
   const [stockCount, setStockCount] = useState(32);
   const [pointsRequired, setPointsRequired] = useState(1025);
   const [image, setImage] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>('/images/gift-placeholder.png');
+  const [preview, setPreview] = useState<string | null>(
+    "/images/gift-placeholder.png"
+  );
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // Modal states
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -33,13 +35,12 @@ export default function EditHadiahPage() {
     const fetchGiftData = async () => {
       setIsLoading(true);
       try {
-       
         setTimeout(() => {
           // Data already set in initial state values
           setIsLoading(false);
         }, 500);
       } catch (error) {
-        console.error('Failed to fetch gift:', error);
+        console.error("Failed to fetch gift:", error);
         setIsLoading(false);
       }
     };
@@ -87,21 +88,21 @@ export default function EditHadiahPage() {
   // Increment and decrement functions for stock and points
   const incrementStock = () => setStockCount(stockCount + 1);
   const decrementStock = () => stockCount > 0 && setStockCount(stockCount - 1);
-  
+
   const incrementPoints = () => setPointsRequired(pointsRequired + 1);
-  const decrementPoints = () => pointsRequired > 0 && setPointsRequired(pointsRequired - 1);
+  const decrementPoints = () =>
+    pointsRequired > 0 && setPointsRequired(pointsRequired - 1);
 
   // Modal handlers
   const handleConfirmEdit = async () => {
     setShowConfirmModal(false);
-    
+
     //Misalnya API
     try {
-      
       setTimeout(() => {
         setShowSuccessModal(true);
       }, 1000);
-    } catch (error) {
+    } catch {
       setShowErrorModal(true);
     }
   };
@@ -118,7 +119,8 @@ export default function EditHadiahPage() {
     <div className="p-4 md:p-6 lg:p-8 space-y-6">
       {/* Page Title */}
       <h1 className="text-2xl font-medium">
-        <span className="text-[#CF0000]">Stok Hadiah</span> | <span className="text-black">Edit Hadiah</span>
+        <span className="text-[#CF0000]">Stok Hadiah</span> |{" "}
+        <span className="text-black">Edit Hadiah</span>
       </h1>
 
       {/* Form Card */}
@@ -261,7 +263,7 @@ export default function EditHadiahPage() {
             <div className="flex justify-end gap-3 pt-4">
               <button
                 type="button"
-                onClick={() => router.push('/gift')}
+                onClick={() => router.push("/gift")}
                 className="px-4 py-2 rounded-lg bg-[#EAEAEA] text-gray-700 hover:bg-gray-300 transition-colors"
               >
                 Simpan
@@ -291,7 +293,7 @@ export default function EditHadiahPage() {
           isOpen={showSuccessModal}
           onClose={() => {
             setShowSuccessModal(false);
-            router.push('/gift');
+            router.push("/gift");
           }}
         />
       )}

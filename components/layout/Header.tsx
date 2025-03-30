@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User } from "lucide-react";
+import { CreativeCommons, LogOut, Server, User, UserCog } from "lucide-react";
 import { useState, useEffect } from "react";
 
 const Header = () => {
@@ -28,12 +28,46 @@ const Header = () => {
     switch (path) {
       case "/dashboard":
         return "Dashboard";
+
       case "/feedback":
         return "Data Feedback";
+      case "/feedback/[id]":
+        return "Detail Feedback";
+      case "/feedback/[id]/reply":
+        return "Balas Feedback";
+
       case "/users":
         return "Data Pengguna";
+
       case "/articles":
         return "Kelola Artikel";
+      case "/articles/create":
+        return "Tambah Artikel";
+      case "/articles/[id]":
+        return "Detail Artikel";
+      case "/articles/[id]/edit":
+        return "Edit Artikel";
+
+      case "/qr-management":
+        return "Manajemen QR";
+      case "/qr-management/create":
+        return "Tambah QR";
+      case "/qr-management/[id]/edit":
+        return "Edit QR";
+
+      case "/reward":
+        return "Stok Hadiah";
+      case "/reward/create":
+        return "Tambah Hadiah";
+      case "/reward/claims":
+        return "Klaim Hadiah";
+      case "/reward/history":
+        return "Riwayat Hadiah";
+      case "/reward/[id]":
+        return "Detail Hadiah";
+      case "/reward/[id]/edit":
+        return "Edit Hadiah";
+
       default:
         return "Dashboard";
     }
@@ -82,15 +116,12 @@ const Header = () => {
                   className="cursor-pointer"
                 >
                   <User className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
+                  <span>Admin Profile (Soon)</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={handleLogout}
-                  className="cursor-pointer text-red-600"
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Logout</span>
+                <DropdownMenuItem className="cursor-pointer text-black-600">
+                  <UserCog className="mr-2 h-4 w-4"></UserCog>
+                  <span>Developer (Soon)</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

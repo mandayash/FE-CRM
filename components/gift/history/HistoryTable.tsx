@@ -1,22 +1,21 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Search, ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { useState } from "react";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+} from "lucide-react";
 
 interface HistoryItem {
   penukaranId: string;
   tanggal: string;
   userId: string;
   name: string;
-  level: 'Gold Level' | 'Silver Level' | 'Platinum Level';
+  level: "Gold Level" | "Silver Level" | "Platinum Level";
 }
 
 interface HistoryTableProps {
@@ -25,28 +24,35 @@ interface HistoryTableProps {
 }
 
 // Komponen badge untuk level
-const LevelBadge = ({ level }: { level: 'Gold Level' | 'Silver Level' | 'Platinum Level' }) => {
+const LevelBadge = ({
+  level,
+}: {
+  level: "Gold Level" | "Silver Level" | "Platinum Level";
+}) => {
   const badgeStyles = {
-    'Silver Level': {
-      background: "linear-gradient(198deg, #ADADAD 20.34%, #D2D2D2 29.06%, #BBB 50.52%, #A0A0A0 58.25%, #959595 86.63%)",
-      text: "#303030"
+    "Silver Level": {
+      background:
+        "linear-gradient(198deg, #ADADAD 20.34%, #D2D2D2 29.06%, #BBB 50.52%, #A0A0A0 58.25%, #959595 86.63%)",
+      text: "#303030",
     },
-    'Gold Level': {
-      background: "linear-gradient(179deg, #FFD23D 35.57%, #EFD787 42.04%, #E1B831 57.97%, #EFD787 63.71%, rgba(242, 186, 0, 0.47) 84.77%)",
-      text: "#303030"
+    "Gold Level": {
+      background:
+        "linear-gradient(179deg, #FFD23D 35.57%, #EFD787 42.04%, #E1B831 57.97%, #EFD787 63.71%, rgba(242, 186, 0, 0.47) 84.77%)",
+      text: "#303030",
     },
-    'Platinum Level': {
-      background: "linear-gradient(244deg, #B09FFF 37.63%, #8C7BDB 41.94%, #BEB0FF 52.54%, #8C7BDB 56.36%, #CBC0FF 70.38%)",
-      text: "#303030"
-    }
+    "Platinum Level": {
+      background:
+        "linear-gradient(244deg, #B09FFF 37.63%, #8C7BDB 41.94%, #BEB0FF 52.54%, #8C7BDB 56.36%, #CBC0FF 70.38%)",
+      text: "#303030",
+    },
   }[level];
 
   return (
-    <span 
+    <span
       className="px-3 py-1 rounded-full text-xs font-medium"
-      style={{ 
+      style={{
         background: badgeStyles.background,
-        color: badgeStyles.text
+        color: badgeStyles.text,
       }}
     >
       {level}
@@ -54,47 +60,50 @@ const LevelBadge = ({ level }: { level: 'Gold Level' | 'Silver Level' | 'Platinu
   );
 };
 
-const HistoryTable: React.FC<HistoryTableProps> = ({ 
+const HistoryTable: React.FC<HistoryTableProps> = ({
   historyData,
-  totalResults = 472322 
+  totalResults = 472322,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("Terbaru");
-  
+
   // Sort state
   const [sortColumn, setSortColumn] = useState<string | null>(null);
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc" | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc" | null>(
+    null
+  );
 
   // Pagination
   const itemsPerPage = 12;
   const totalPages = Math.ceil(totalResults / itemsPerPage);
 
   // Filter history data berdasarkan search query
-  const filteredHistory = historyData.filter(item => 
-    item.penukaranId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.userId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredHistory = historyData.filter(
+    (item) =>
+      item.penukaranId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.userId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Sort berdasarkan activeFilter (Terbaru/Terlama)
   let sortedHistory = [...filteredHistory];
-  
+
   if (activeFilter === "Terbaru" || activeFilter === "Terlama") {
     sortedHistory.sort((a, b) => {
       const dateA = new Date(a.tanggal).getTime();
       const dateB = new Date(b.tanggal).getTime();
-      
+
       return activeFilter === "Terbaru" ? dateB - dateA : dateA - dateB;
     });
   }
-  
+
   // Sort berdasarkan column
   if (sortColumn && sortDirection) {
     sortedHistory.sort((a, b) => {
-      const valueA = a[sortColumn as keyof typeof a] || '';
-      const valueB = b[sortColumn as keyof typeof b] || '';
-      
+      const valueA = a[sortColumn as keyof typeof a] || "";
+      const valueB = b[sortColumn as keyof typeof b] || "";
+
       if (sortDirection === "asc") {
         return valueA > valueB ? 1 : -1;
       } else {
@@ -124,16 +133,16 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
   const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
-      return new Intl.DateTimeFormat('id-ID', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
+      return new Intl.DateTimeFormat("id-ID", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
       }).format(date);
-    } catch (error) {
+    } catch {
       return dateString; // fallback to original string if parsing fails
     }
   };
@@ -143,15 +152,15 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
     if (sortColumn !== column) {
       return <ArrowUpDown size={16} />;
     }
-    
+
     if (sortDirection === "asc") {
       return <ArrowUp size={16} />;
     }
-    
+
     if (sortDirection === "desc") {
       return <ArrowDown size={16} />;
     }
-    
+
     return <ArrowUpDown size={16} />;
   };
 
@@ -168,9 +177,9 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <Search 
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" 
-            size={18} 
+          <Search
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+            size={18}
           />
         </div>
 
@@ -199,44 +208,44 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
           <table className="w-full min-w-[650px]">
             <thead className="bg-[#EAEAEA]">
               <tr>
-                <th 
+                <th
                   className="p-4 text-center text-sm font-medium cursor-pointer text-[#080808]"
-                  onClick={() => handleSort('penukaranId')}
+                  onClick={() => handleSort("penukaranId")}
                 >
                   <div className="flex items-center justify-center gap-1">
-                    Penukaran Id {getSortIcon('penukaranId')}
+                    Penukaran Id {getSortIcon("penukaranId")}
                   </div>
                 </th>
-                <th 
+                <th
                   className="p-4 text-center text-sm font-medium cursor-pointer text-[#080808]"
-                  onClick={() => handleSort('tanggal')}
+                  onClick={() => handleSort("tanggal")}
                 >
                   <div className="flex items-center justify-center gap-1">
-                    Tanggal {getSortIcon('tanggal')}
+                    Tanggal {getSortIcon("tanggal")}
                   </div>
                 </th>
-                <th 
+                <th
                   className="p-4 text-center text-sm font-medium cursor-pointer text-[#080808]"
-                  onClick={() => handleSort('userId')}
+                  onClick={() => handleSort("userId")}
                 >
                   <div className="flex items-center justify-center gap-1">
-                    User Id {getSortIcon('userId')}
+                    User Id {getSortIcon("userId")}
                   </div>
                 </th>
-                <th 
+                <th
                   className="p-4 text-center text-sm font-medium cursor-pointer text-[#080808]"
-                  onClick={() => handleSort('name')}
+                  onClick={() => handleSort("name")}
                 >
                   <div className="flex items-center justify-center gap-1">
-                    Nama Pengguna {getSortIcon('name')}
+                    Nama Pengguna {getSortIcon("name")}
                   </div>
                 </th>
-                <th 
+                <th
                   className="p-4 text-center text-sm font-medium cursor-pointer text-[#080808]"
-                  onClick={() => handleSort('level')}
+                  onClick={() => handleSort("level")}
                 >
                   <div className="flex items-center justify-center gap-1">
-                    Level Poin {getSortIcon('level')}
+                    Level Poin {getSortIcon("level")}
                   </div>
                 </th>
               </tr>
@@ -244,11 +253,22 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
             <tbody>
               {sortedHistory.length > 0 ? (
                 sortedHistory.map((item, index) => (
-                  <tr key={index} className="border-t hover:bg-gray-50 bg-white text-center">
-                    <td className="p-4 text-sm font-medium text-center bg-white">{item.penukaranId}</td>
-                    <td className="p-4 text-sm text-center bg-white">{formatDate(item.tanggal)}</td>
-                    <td className="p-4 text-sm text-center bg-white">{item.userId}</td>
-                    <td className="p-4 text-sm text-center bg-white">{item.name}</td>
+                  <tr
+                    key={index}
+                    className="border-t hover:bg-gray-50 bg-white text-center"
+                  >
+                    <td className="p-4 text-sm font-medium text-center bg-white">
+                      {item.penukaranId}
+                    </td>
+                    <td className="p-4 text-sm text-center bg-white">
+                      {formatDate(item.tanggal)}
+                    </td>
+                    <td className="p-4 text-sm text-center bg-white">
+                      {item.userId}
+                    </td>
+                    <td className="p-4 text-sm text-center bg-white">
+                      {item.name}
+                    </td>
                     <td className="p-4 text-center bg-white">
                       <div className="flex justify-center bg-white">
                         <LevelBadge level={item.level} />
@@ -258,7 +278,10 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="p-8 text-center text-gray-500 bg-white">
+                  <td
+                    colSpan={5}
+                    className="p-8 text-center text-gray-500 bg-white"
+                  >
                     Tidak ada data yang ditemukan
                   </td>
                 </tr>
@@ -277,17 +300,19 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
             <option>24</option>
             <option>36</option>
           </select>
-          <span className="text-gray-500">out of {totalResults.toLocaleString()}</span>
+          <span className="text-gray-500">
+            out of {totalResults.toLocaleString()}
+          </span>
         </div>
 
         <div className="flex items-center gap-2">
-          <button 
+          <button
             className="p-1.5 bg-[#EAEAEA] rounded-lg"
             onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
           >
             <ChevronLeft size={16} className="text-[#080808]" />
           </button>
-          
+
           <button className="w-[30px] h-[30px] flex items-center justify-center rounded-lg text-xs bg-[#CF0000] text-white">
             1
           </button>
@@ -295,9 +320,11 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
             2
           </button>
 
-          <button 
+          <button
             className="p-1.5 bg-[#EAEAEA] rounded-lg"
-            onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
+            onClick={() =>
+              currentPage < totalPages && setCurrentPage(currentPage + 1)
+            }
           >
             <ChevronRight size={16} className="text-[#080808]" />
           </button>
