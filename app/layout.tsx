@@ -27,6 +27,9 @@ const sfProDisplay = localFont({
 export const metadata: Metadata = {
   title: "LRT Sumsel CRM Admin",
   description: "Admin dashboard for LRT Sumsel CRM system",
+  icons: {
+    icon: [{ url: "/images/logo_lrt.png", type: "image/png" }],
+  },
 };
 
 export default function RootLayout({
