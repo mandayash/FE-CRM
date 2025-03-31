@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import Image from "next/image";
 import Link from "next/link";
@@ -55,7 +56,7 @@ export default function ForgotPasswordPage() {
           {/* Logo */}
           <div className="mb-6 md:mb-8">
             <Image
-              src="/images/LOGO LRT SUMSEL.png"
+              src="/images/logo_lrt.png"
               alt="LRT Logo"
               width={170}
               height={40}

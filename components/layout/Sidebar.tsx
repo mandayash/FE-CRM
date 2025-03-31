@@ -327,7 +327,7 @@ const Sidebar = () => {
         {/* Logo */}
         <div className="px-7 py-6 flex-shrink-0">
           <Image
-            src="/images/LOGO LRT SUMSEL.png"
+            src="/images/logo_lrt.png"
             width={170}
             height={65}
             alt="Logo"
@@ -337,7 +337,7 @@ const Sidebar = () => {
         </div>
 
         {/* Menu */}
-        <nav className="mt-8 px-4 flex-1 overflow-y-auto">
+        <nav className=" px-4 flex-1 overflow-y-auto">
           {menuItems.map((item) => (
             <Link
               key={item.title}

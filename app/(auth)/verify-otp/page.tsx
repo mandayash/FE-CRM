@@ -69,7 +69,7 @@ export default function VerifyOTP() {
           {/* Logo */}
           <div className="mb-6 md:mb-8">
             <Image
-              src="/images/LOGO LRT SUMSEL.png"
+              src="/images/logo_lrt.png"
               alt="LRT Logo"
               width={170}
               height={40}

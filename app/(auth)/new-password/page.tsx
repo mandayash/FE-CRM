@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import Image from "next/image";
+import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function ResetPasswordPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
-    password: '',
-    confirmPassword: ''
+    password: "",
+    confirmPassword: "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -38,7 +38,7 @@ export default function ResetPasswordPage() {
           {/* Logo */}
           <div className="mb-6 md:mb-8">
             <Image
-              src="/images/LOGO LRT SUMSEL.png"
+              src="/images/logo_lrt.png"
               alt="LRT Logo"
               width={170}
               height={40}
@@ -56,7 +56,8 @@ export default function ResetPasswordPage() {
               Buat password baru
             </h2>
             <p className="text-xs md:text-sm text-gray-600">
-              Kata sandi baru anda harus berbeda dari kata sandi yang digunakan sebelumnya.
+              Kata sandi baru anda harus berbeda dari kata sandi yang digunakan
+              sebelumnya.
             </p>
           </div>
 
@@ -71,7 +72,9 @@ export default function ResetPasswordPage() {
                   type={showPassword ? "text" : "password"}
                   placeholder="Masukan Password baru"
                   value={formData.password}
-                  onChange={(e) => setFormData({...formData, password: e.target.value})}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
                   className="w-full h-10 md:h-[46px] px-3 md:px-4 pr-10 md:pr-12 rounded-lg border border-[#EAEAEA] focus:outline-none focus:ring-2 focus:ring-[#CF0000] text-xs md:text-sm"
                 />
                 <button
@@ -94,7 +97,12 @@ export default function ResetPasswordPage() {
                   type={showConfirmPassword ? "text" : "password"}
                   placeholder="Masukan konfirmasi password"
                   value={formData.confirmPassword}
-                  onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      confirmPassword: e.target.value,
+                    })
+                  }
                   className="w-full h-10 md:h-[46px] px-3 md:px-4 pr-10 md:pr-12 rounded-lg border border-[#EAEAEA] focus:outline-none focus:ring-2 focus:ring-[#CF0000] text-xs md:text-sm"
                 />
                 <button
@@ -102,7 +110,11 @@ export default function ResetPasswordPage() {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 text-gray-500"
                 >
-                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {showConfirmPassword ? (
+                    <EyeOff size={20} />
+                  ) : (
+                    <Eye size={20} />
+                  )}
                 </button>
               </div>
             </div>
