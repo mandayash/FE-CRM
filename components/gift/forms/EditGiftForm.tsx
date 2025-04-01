@@ -110,6 +110,7 @@ const EditGiftForm: React.FC<EditGiftFormProps> = ({
             />
           </div>
 
+          {/* Stok & Poin */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Stok */}
             <div className="space-y-2">
