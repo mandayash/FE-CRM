@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 import { UploadCloudIcon } from "lucide-react";
+import { rewardService } from "@/services/rewardService";
 
 interface EditGiftFormProps {
   initialData: {
@@ -31,7 +32,6 @@ const EditGiftForm: React.FC<EditGiftFormProps> = ({
   onCancel,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
 
   const [giftName, setGiftName] = useState(initialData.name);
   const [stockCount, setStockCount] = useState(initialData.stock);
@@ -39,7 +39,9 @@ const EditGiftForm: React.FC<EditGiftFormProps> = ({
   const [description, setDescription] = useState(initialData.description);
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(
-    initialData.image_url ? `${baseUrl}${initialData.image_url}` : null
+    initialData.image_url
+      ? rewardService.getImageUrl(initialData.image_url)
+      : null
   );
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,7 +67,6 @@ const EditGiftForm: React.FC<EditGiftFormProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     onSubmit({
       id: initialData.id,
       name: giftName,
@@ -222,7 +223,7 @@ const EditGiftForm: React.FC<EditGiftFormProps> = ({
             )}
           </div>
 
-          {/* Tombol */}
+          {/* Tombol Aksi */}
           <div className="flex justify-end gap-3 pt-4">
             <button
               type="button"

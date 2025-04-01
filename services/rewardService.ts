@@ -170,4 +170,10 @@ export const rewardService = {
     );
     return response.data;
   },
+
+  // ======= UTIL =======
+  getImageUrl: (imagePath: string | null): string => {
+    if (!imagePath) return "";
+    return `${process.env.NEXT_PUBLIC_API_URL}/uploads/${imagePath}`;
+  },
 };
