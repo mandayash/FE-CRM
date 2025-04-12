@@ -38,18 +38,24 @@ const EditGiftForm: React.FC<EditGiftFormProps> = ({
   const [pointsRequired, setPointsRequired] = useState(initialData.point_cost);
   const [description, setDescription] = useState(initialData.description);
   const [image, setImage] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(
-    initialData.image_url
-      ? rewardService.getImageUrl(initialData.image_url)
-      : null
-  );
+
+  // Transform the initial image URL properly
+  const initialImageUrl = initialData.image_url
+    ? rewardService.getImageUrl(initialData.image_url)
+    : null;
+
+  const [preview, setPreview] = useState<string | null>(initialImageUrl);
+  const [isNewImage, setIsNewImage] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setImage(file);
       const reader = new FileReader();
-      reader.onload = () => setPreview(reader.result as string);
+      reader.onload = () => {
+        setPreview(reader.result as string);
+        setIsNewImage(true);
+      };
       reader.readAsDataURL(file);
     }
   };
@@ -60,7 +66,10 @@ const EditGiftForm: React.FC<EditGiftFormProps> = ({
     if (file) {
       setImage(file);
       const reader = new FileReader();
-      reader.onload = () => setPreview(reader.result as string);
+      reader.onload = () => {
+        setPreview(reader.result as string);
+        setIsNewImage(true);
+      };
       reader.readAsDataURL(file);
     }
   };
@@ -182,17 +191,28 @@ const EditGiftForm: React.FC<EditGiftFormProps> = ({
             <label className="block text-sm font-medium">Gambar</label>
             {preview ? (
               <div className="relative w-full h-64 border rounded-lg overflow-hidden">
-                <Image
-                  src={preview}
-                  alt="Preview"
-                  fill
-                  className="object-contain"
-                />
+                {/* Use regular img tag for data URLs (newly uploaded files) */}
+                {isNewImage ? (
+                  <img
+                    src={preview}
+                    alt="Preview"
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  /* Use Next.js Image for remote images (from server) */
+                  <Image
+                    src={preview}
+                    alt="Preview"
+                    fill
+                    className="object-contain"
+                  />
+                )}
                 <button
                   type="button"
                   onClick={() => {
                     setImage(null);
                     setPreview(null);
+                    setIsNewImage(false);
                   }}
                   className="absolute top-2 right-2 bg-red-500 text-white text-xs rounded-full px-2 py-1"
                 >
@@ -223,6 +243,15 @@ const EditGiftForm: React.FC<EditGiftFormProps> = ({
               </div>
             )}
           </div>
+
+          {/* Debug section (you can remove this in production) */}
+          {/* 
+          <div className="text-xs text-gray-500 border-t pt-4">
+            <p>Image URL: {initialData.image_url}</p>
+            <p>Full URL: {initialImageUrl}</p>
+            <p>Is New Image: {isNewImage ? 'Yes' : 'No'}</p>
+          </div>
+          */}
 
           {/* Tombol Aksi */}
           <div className="flex justify-end gap-3 pt-4">
