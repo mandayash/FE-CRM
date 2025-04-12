@@ -20,6 +20,22 @@ const nextConfig = {
         port: "8080",
         pathname: "/article/uploads/**", // ini penting
       },
+      // Production domain
+      {
+        protocol: "https",
+        hostname: "backend.lrt-sumsel.id",
+        pathname: "/uploads/**",
+      },
+      {
+        protocol: "https",
+        hostname: "backend.lrt-sumsel.id",
+        pathname: "/feedbacks/uploads/**",
+      },
+      {
+        protocol: "https",
+        hostname: "backend.lrt-sumsel.id",
+        pathname: "/article/uploads/**",
+      },
     ],
   },
   eslint: {
