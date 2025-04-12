@@ -22,9 +22,7 @@ async function getReward(id: string): Promise<Reward | null> {
         cache: "no-store",
       }
     );
-
     if (!res.ok) return null;
-
     return await res.json();
   } catch (err) {
     console.error("Failed to fetch reward:", err);
@@ -32,13 +30,15 @@ async function getReward(id: string): Promise<Reward | null> {
   }
 }
 
-// Halaman detail reward
-export default async function RewardDetailPage({
-  params,
-}: {
+interface PageProps {
   params: { id: string };
-}) {
-  const reward = await getReward(params.id);
+}
+
+// Halaman detail reward
+export default async function RewardDetailPage({ params }: PageProps) {
+  // Explicitly cast id as string to avoid the params.id error
+  const id = params.id as string;
+  const reward = await getReward(id);
 
   if (!reward) return notFound();
 
@@ -46,7 +46,6 @@ export default async function RewardDetailPage({
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="bg-white shadow rounded-2xl p-6">
         <h1 className="text-2xl font-bold mb-6">{reward.name}</h1>
-
         {/* Gambar */}
         {reward.image_url && (
           <div className="relative w-full h-72 rounded-xl overflow-hidden mb-6 border">
@@ -58,12 +57,10 @@ export default async function RewardDetailPage({
             />
           </div>
         )}
-
         {/* Deskripsi */}
         <p className="text-gray-700 mb-4">
           {reward.description || "Tidak ada deskripsi untuk hadiah ini."}
         </p>
-
         {/* Info */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-600">
           <div>
