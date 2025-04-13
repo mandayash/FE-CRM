@@ -69,7 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const login = async (email: string, password: string) => {
     try {
       const response = await axios.post(
-        "http://localhost:8080/auth/admin/login",
+        "https://backend.lrt-sumsel.id/auth/admin/login",
         {
           email,
           password,

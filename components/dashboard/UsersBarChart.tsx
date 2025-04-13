@@ -98,7 +98,11 @@ const UsersBarChart: React.FC = () => {
             </CardTitle>
             <div className="mt-1 min-w-0">
               <p className="text-xl sm:text-2xl lg:text-3xl font-bold truncate">
-                {allUsers.length}
+                {
+                  allUsers.filter(
+                    (user) => dayjs(user.created_at).year() === year
+                  ).length
+                }
               </p>
               <p className="text-xs sm:text-sm text-gray-500 truncate">
                 Total Pengguna
