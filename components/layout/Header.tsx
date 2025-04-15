@@ -10,8 +10,34 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CreativeCommons, LogOut, Server, User, UserCog } from "lucide-react";
+import { User, UserCog } from "lucide-react";
 import { useState, useEffect } from "react";
+
+export const pageTitleMap: { pattern: RegExp; title: string }[] = [
+  { pattern: /^\/dashboard$/, title: "Dashboard" },
+
+  { pattern: /^\/feedback$/, title: "Data Feedback" },
+  { pattern: /^\/feedback\/[^\/]+\/reply$/, title: "Balas Feedback" },
+  { pattern: /^\/feedback\/[^\/]+$/, title: "Detail Feedback" },
+
+  { pattern: /^\/users$/, title: "Data Pengguna" },
+
+  { pattern: /^\/articles$/, title: "Kelola Artikel" },
+  { pattern: /^\/articles\/create$/, title: "Tambah Artikel" },
+  { pattern: /^\/articles\/[^\/]+\/edit$/, title: "Edit Artikel" },
+  { pattern: /^\/articles\/[^\/]+$/, title: "Detail Artikel" },
+
+  { pattern: /^\/qr-management$/, title: "Manajemen QR" },
+  { pattern: /^\/qr-management\/create$/, title: "Tambah QR" },
+  { pattern: /^\/qr-management\/[^\/]+\/edit$/, title: "Edit QR" },
+
+  { pattern: /^\/reward$/, title: "Stok Hadiah" },
+  { pattern: /^\/reward\/create$/, title: "Tambah Hadiah" },
+  { pattern: /^\/reward\/claims$/, title: "Klaim Hadiah" },
+  { pattern: /^\/reward\/history$/, title: "Riwayat Hadiah" },
+  { pattern: /^\/reward\/[^\/]+\/edit$/, title: "Edit Hadiah" },
+  { pattern: /^\/reward\/[^\/]+$/, title: "Detail Hadiah" },
+];
 
 const Header = () => {
   const pathname = usePathname();
@@ -24,53 +50,9 @@ const Header = () => {
     setMounted(true);
   }, []);
 
-  const getPageTitle = (path: string) => {
-    switch (path) {
-      case "/dashboard":
-        return "Dashboard";
-
-      case "/feedback":
-        return "Data Feedback";
-      case "/feedback/[id]":
-        return "Detail Feedback";
-      case "/feedback/[id]/reply":
-        return "Balas Feedback";
-
-      case "/users":
-        return "Data Pengguna";
-
-      case "/articles":
-        return "Kelola Artikel";
-      case "/articles/create":
-        return "Tambah Artikel";
-      case "/articles/[id]":
-        return "Detail Artikel";
-      case "/articles/[id]/edit":
-        return "Edit Artikel";
-
-      case "/qr-management":
-        return "Manajemen QR";
-      case "/qr-management/create":
-        return "Tambah QR";
-      case "/qr-management/[id]/edit":
-        return "Edit QR";
-
-      case "/reward":
-        return "Stok Hadiah";
-      case "/reward/create":
-        return "Tambah Hadiah";
-      case "/reward/claims":
-        return "Klaim Hadiah";
-      case "/reward/history":
-        return "Riwayat Hadiah";
-      case "/reward/[id]":
-        return "Detail Hadiah";
-      case "/reward/[id]/edit":
-        return "Edit Hadiah";
-
-      default:
-        return "Dashboard";
-    }
+  const getPageTitle = (path: string): string => {
+    const match = pageTitleMap.find((entry) => entry.pattern.test(path));
+    return match ? match.title : "Dashboard";
   };
 
   const handleLogout = () => {

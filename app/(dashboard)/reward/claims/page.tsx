@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { RewardClaim, rewardService } from "@/services/rewardService";
-import { Plus, ClipboardList, Check } from "lucide-react";
+import { Check } from "lucide-react";
 import Link from "next/link";
 
 export default function RewardClaimHistoryPage() {
@@ -42,7 +42,7 @@ export default function RewardClaimHistoryPage() {
 
   return (
     <div className="space-y-6 py-4">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-start items-start sm:items-center gap-4">
         <Link
           href="/reward"
           className="inline-flex items-center gap-2 text-sm text-[#CF0000] hover:text-red-700 transition"
@@ -66,24 +66,6 @@ export default function RewardClaimHistoryPage() {
         <h1 className="text-2xl font-medium text-[#CF0000]">
           Riwayat Permintaan Tukar Hadiah
         </h1>
-
-        <div className="flex gap-2">
-          <Link
-            href="/reward/claims"
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-[#CF0000] text-white text-sm hover:bg-red-700 transition"
-          >
-            <ClipboardList className="w-4 h-4" />
-            Permintaan Tukar Hadiah
-          </Link>
-
-          <Link
-            href="/gift/create"
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-[#CF0000] text-white text-sm hover:bg-red-700 transition"
-          >
-            <Plus className="w-4 h-4" />
-            Tambah Hadiah
-          </Link>
-        </div>
       </div>
 
       {/* Status */}

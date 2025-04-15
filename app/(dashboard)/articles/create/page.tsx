@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { AlertCircle, ImagePlus } from "lucide-react";
+import { AlertCircle, ArrowLeft, ImagePlus } from "lucide-react";
 import { articleService } from "@/services/articleService";
 import Image from "next/image";
 
@@ -22,6 +22,9 @@ export default function CreateArticlePage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
   const router = useRouter();
+  const handleGoBack = () => {
+    router.push("/articles");
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -88,8 +91,15 @@ export default function CreateArticlePage() {
   return (
     <div className="space-y-6 p-4 max-w-7xl mx-auto">
       <h1 className="text-2xl font-medium text-center md:text-left">
+        <button
+          onClick={handleGoBack}
+          className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+          aria-label="Kembali ke daftar pengguna"
+        >
+          <ArrowLeft size={20} className="text-black" />
+        </button>
         <span className="text-[#CF0000]">Kelola Artikel</span> |{" "}
-        <span className="text-black">Buat Artikel</span>
+        <span className="text-black">Tambah Artikel</span>
       </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
